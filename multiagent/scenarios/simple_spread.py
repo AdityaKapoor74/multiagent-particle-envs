@@ -64,6 +64,8 @@ class Scenario(BaseScenario):
 
 
     def is_collision(self, agent1, agent2):
+        if agent1.name == agent2.name:
+            return False
         delta_pos = agent1.state.p_pos - agent2.state.p_pos
         dist = np.sqrt(np.sum(np.square(delta_pos)))
         dist_min = agent1.size + agent2.size
