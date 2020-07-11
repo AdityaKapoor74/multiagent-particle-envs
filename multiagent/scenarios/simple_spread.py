@@ -8,13 +8,12 @@ class Scenario(BaseScenario):
         world = World()
         # set any world properties first
         # world.dim_c = 2
-        num_agents = 2
-        num_landmarks = 2
+        num_agents = 3
+        num_landmarks = 3
+        print("NUMBER OF AGENTS:",num_agents)
+        print("NUMBER OF LANDMARKS:",num_landmarks)
         self.num_landmarks = num_landmarks
         world.collaborative = True
-
-        # landmark reached?
-        self.landmark_occupied = [0 for i in range(self.num_landmarks)]
 
         # add agents
         world.agents = [Agent() for i in range(num_agents)]
@@ -34,9 +33,6 @@ class Scenario(BaseScenario):
         return world
 
     def reset_world(self, world):
-
-        # resetting occupied landmarks to False
-        self.landmark_occupied = [0 for i in range(self.num_landmarks)]
 
         # random properties for agents
         for i, agent in enumerate(world.agents):
@@ -113,13 +109,13 @@ class Scenario(BaseScenario):
 
 
     def isFinished(self,agent,world):
-
-        index = -1
+        occupied_landmarks = 0
         for l in world.landmarks:
             dists = [np.sqrt(np.sum(np.square(a.state.p_pos - l.state.p_pos))) for a in world.agents]
             # print(dists)
             if min(dists)<0.1:
-                index = dists.index(min(dists))
-                self.landmark_occupied[index] = 1
+                occupied_landmarks += 1
 
-        return all(self.landmark_occupied)
+        if occupied_landmarks==self.num_landmarks:
+            return True
+        
