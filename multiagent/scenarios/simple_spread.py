@@ -8,8 +8,8 @@ class Scenario(BaseScenario):
         world = World()
         # set any world properties first
         # world.dim_c = 2
-        num_agents = 3
-        num_landmarks = 3
+        num_agents = 4
+        num_landmarks = 4
         print("NUMBER OF AGENTS:",num_agents)
         print("NUMBER OF LANDMARKS:",num_landmarks)
         self.num_landmarks = num_landmarks
