@@ -107,7 +107,7 @@ class Scenario(BaseScenario):
 		return rew
 
 	def reward_agent_centric_paired(self, agent, world):
-		index = len(world.agents)-int(agent.name[-1])
+		index = len(world.agents)-int(agent.name[-1])-1
 
 		dist = np.sqrt(np.sum(np.square(world.agents[index].state.p_pos - world.landmarks[index].state.p_pos)))
 		rew = -dist
