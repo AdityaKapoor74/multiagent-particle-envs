@@ -111,9 +111,9 @@ class Scenario(BaseScenario):
 
 		dist = np.sqrt(np.sum(np.square(world.agents[index].state.p_pos - world.landmarks[index].state.p_pos)))
 		rew = -dist
-		if agent.collide:
+		if world.agents[index].collide:
 			for a in world.agents:
-				if self.is_collision(a, agent):
+				if self.is_collision(a, world.agents[index]):
 					rew -= 1
 		return rew
 
