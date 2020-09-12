@@ -111,32 +111,58 @@ class Scenario(BaseScenario):
 
 		dist = np.sqrt(np.sum(np.square(world.agents[index].state.p_pos - world.landmarks[index].state.p_pos)))
 		rew = -dist
-		if agent.collide:
+		if world.agents[index].collide:
 			for a in world.agents:
-				if self.is_collision(a, agent):
+				if self.is_collision(a, world.agents[index]):
 					rew -= 1
 		return rew
 
+	# before
+	# def observation(self, agent, world):
+	# 	# get positions of all entities in this agent's reference frame
+	# 	entity_pos = []
+	# 	for entity in world.landmarks:  # world.entities:
+	# 		entity_pos.append(entity.state.p_pos - agent.state.p_pos)
+	# 	# entity colors
+	# 	entity_color = []
+	# 	for entity in world.landmarks:  # world.entities:
+	# 		entity_color.append(entity.color)
+	# 	# communication of all other agents
+	# 	comm = []
+	# 	other_pos = []
+	# 	for other in world.agents:
+	# 		if other is agent: continue
+	# 		comm.append(other.state.c)
+	# 		other_pos.append(other.state.p_pos - agent.state.p_pos)
+	# 	return np.concatenate([agent.state.p_vel] + [agent.state.p_pos] + entity_pos + other_pos + comm)
+
+
+	# after
 	def observation(self, agent, world):
-		# get positions of all entities in this agent's reference frame
-		# entity_pos = []
-		# for entity in world.landmarks:  # world.entities:
-		# 	entity_pos.append(entity.state.p_pos - agent.state.p_pos)
-		index = world.agents.index(agent)
-		entity_pos = [world.landmarks[index].state.p_pos - agent.state.p_pos]
-		# entity colors
-		# entity_color = []
-		# for entity in world.landmarks:  # world.entities:
-		# 	entity_color.append(entity.color)
-		# communication of all other agents
-		# comm = []
-		other_pos = []
-		for other in world.agents:
-			if other is agent: continue
-			# comm.append(other.state.c)
-			other_pos.append(other.state.p_pos - agent.state.p_pos)
-		# return np.concatenate([agent.state.p_vel] + [agent.state.p_pos] + entity_pos + other_pos + comm)
-		return np.concatenate([agent.state.p_vel] + [agent.state.p_pos] + entity_pos + other_pos)
+	  # get positions of all entities in this agent's reference frame
+		
+	  # # index = world.agents.index(agent)
+	  # entity_pos = [world.landmarks[index].state.p_pos - agent.state.p_pos]
+
+	  # other_pos = []
+	  # for other in world.agents:
+	  #   if other is agent: continue
+	  #   other_pos.append(other.state.p_pos - agent.state.p_pos)
+	  # return np.concatenate([agent.state.p_vel] + [agent.state.p_pos] + entity_pos + other_pos)
+
+	  curr_agent_index = world.agents.index(agent)
+	  current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
+	  current_agent_actor = [agent.state.p_pos,agent.state.p_vel]
+	  other_agents_critic = []
+	  other_agents_actor = []
+	  for i,other_agent in enumerate(world.agents):
+	      if other_agent is agent:
+	          continue
+	      other_agent_info = [other_agent.state.p_pos,other_agent.state.p_vel,world.landmarks[i].state.p_pos]
+	      other_agents_critic.extend(other_agent_info)
+	      other_agents_actor.append(other_agent.state.p_pos-agent.state.p_pos)
+
+	  return np.concatenate(current_agent_critic+other_agents_critic),np.concatenate(current_agent_actor+other_agents_actor+[world.landmarks[curr_agent_index].state.p_pos])
 
 
 	def isFinished(self,agent,world):
