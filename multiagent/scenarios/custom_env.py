@@ -122,13 +122,9 @@ class Scenario(BaseScenario):
 
 
 	def isFinished(self,agent,world):
-		occupied_landmarks = 0
-		for l in world.landmarks:
-			dists = [np.sqrt(np.sum(np.square(a.state.p_pos - l.state.p_pos))) for a in world.agents]
-			# print(dists)
-			if min(dists)<0.1:
-				occupied_landmarks += 1
-
-		if occupied_landmarks==self.num_landmarks:
+		index = len(world.agents)-int(agent.name[-1])-1
+		dist = np.sqrt(np.sum(np.square(world.agents[index].state.p_pos - world.landmarks[index].state.p_pos)))
+		if dist<0.1:
 			return True
+		return False
 		
