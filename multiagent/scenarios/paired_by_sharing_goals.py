@@ -8,22 +8,21 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		num_agents = 4
-		num_landmarks = 4
-		print("NUMBER OF AGENTS:",num_agents)
-		print("NUMBER OF LANDMARKS:",num_landmarks)
-		self.num_landmarks = num_landmarks
+		self.num_agents = 4
+		self.num_landmarks = 4
+		print("NUMBER OF AGENTS:",self.num_agents)
+		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
 
 		# add agents
-		world.agents = [Agent() for i in range(num_agents)]
+		world.agents = [Agent() for i in range(self.num_agents)]
 		for i, agent in enumerate(world.agents):
 			agent.name = 'agent %d' % i
 			agent.collide = True
 			agent.silent = True
 			agent.size = 0.15 #was 0.15
 		# add landmarks
-		world.landmarks = [Landmark() for i in range(num_landmarks)]
+		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
 		for i, landmark in enumerate(world.landmarks):
 			landmark.name = 'landmark %d' % i
 			landmark.collide = False
@@ -34,19 +33,16 @@ class Scenario(BaseScenario):
 
 	def reset_world(self, world):
 
-		num_agents = len(world.agents)
-		num_landmarks = len(world.landmarks)
-
 		base_color_agent = np.array([0.45, 0.45, 0.85])
 		base_color_landmark = np.array([0.1, 0.1, 0.1])
 
-		for i in range(int(num_agents/2)):
-			world.agents[i].color = base_color_agent + i/num_agents
-			world.agents[num_agents - 1 - i].color = base_color_agent + i/num_agents
+		for i in range(int(self.num_agents/2)):
+			world.agents[i].color = base_color_agent + i/self.num_agents
+			world.agents[self.num_agents - 1 - i].color = base_color_agent + i/self.num_agents
 
-		for i in range(int(num_landmarks/2)):
-			world.landmarks[i].color = base_color_landmark + i/num_landmarks
-			world.landmarks[num_landmarks - 1 - i].color = base_color_landmark + i/num_landmarks
+		for i in range(int(self.num_landmarks/2)):
+			world.landmarks[i].color = base_color_landmark + i/self.num_landmarks
+			world.landmarks[self.num_landmarks - 1 - i].color = base_color_landmark + i/self.num_landmarks
 
 
 		# set random initial states
@@ -110,19 +106,20 @@ class Scenario(BaseScenario):
 
 	def observation(self, agent, world):
 
-	  curr_agent_index = world.agents.index(agent)
-	  paired_agent_index = len(world.agents)-int(agent.name[-1])-1
-	  current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos,world.landmarks[paired_agent_index].state.p_pos]
-	  current_agent_actor = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
-	  other_agents_actor = []
+		curr_agent_index = world.agents.index(agent)
+		paired_agent_index = len(world.agents)-int(agent.name[-1])-1
 
-	  for other_agent in world.agents:
-	      if other_agent is agent:
-	          continue
-	      other_agents_actor.append(other_agent.state.p_pos-agent.state.p_pos)
-	      other_agents_actor.append(other_agent.state.p_vel-agent.state.p_vel)
+		current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos,world.landmarks[paired_agent_index].state.p_pos]
+		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
+		other_agents_actor = []
 
-	  return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor+other_agents_actor)
+		for other_agent in world.agents:
+			if other_agent is agent:
+			  continue
+			other_agents_actor.append(other_agent.state.p_pos-agent.state.p_pos)
+			other_agents_actor.append(other_agent.state.p_vel-agent.state.p_vel)
+
+		return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor+other_agents_actor)
 
 
 	def isFinished(self,agent,world):
