@@ -82,19 +82,20 @@ class Scenario(BaseScenario):
 		return True if dist < dist_min else False
 
 
-	def reward_sum_of_paired_agents(self, agent, world):
+	def reward_paired_agents(self, agent, world):
 		my_index = int(agent.name[-1])
 		paired_agent_index = len(world.agents)-int(agent.name[-1])-1
 
 
-		my_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
+		# my_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
 		paired_agent_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[paired_agent_index].state.p_pos - world.landmarks[paired_agent_index].state.p_pos)))
 		
-		rew = -(my_dist_from_goal + paired_agent_dist_from_goal)
-		if world.agents[my_index].collide:
-			for a in world.agents:
-				if self.is_collision(a, world.agents[my_index]):
-					rew -= 1
+		# rew = -(my_dist_from_goal + paired_agent_dist_from_goal)
+		rew = -paired_agent_index
+		# if world.agents[my_index].collide:
+		# 	for a in world.agents:
+		# 		if self.is_collision(a, world.agents[my_index]):
+		# 			rew -= 1
 
 		if world.agents[paired_agent_index].collide:
 			for a in world.agents:
