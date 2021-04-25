@@ -8,8 +8,8 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 4
-		self.num_landmarks = 4
+		self.num_agents = 10
+		self.num_landmarks = 10
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
@@ -21,6 +21,7 @@ class Scenario(BaseScenario):
 			agent.collide = True
 			agent.silent = True
 			agent.size = 0.15 #was 0.15
+			agent.prevDistance = 0.0
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
 		for i, landmark in enumerate(world.landmarks):
@@ -50,6 +51,9 @@ class Scenario(BaseScenario):
 			agent.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
 			agent.state.p_vel = np.zeros(world.dim_p)
 			agent.state.c = np.zeros(world.dim_c)
+
+			agent.prevDistance = 0.0
+
 		for i, landmark in enumerate(world.landmarks):
 			landmark.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
 			landmark.state.p_vel = np.zeros(world.dim_p)
@@ -89,18 +93,21 @@ class Scenario(BaseScenario):
 
 		# my_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
 		paired_agent_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[paired_agent_index].state.p_pos - world.landmarks[paired_agent_index].state.p_pos)))
-		
+
+		rew = agent.prevDistance - paired_agent_dist_from_goal
+		agent.prevDistance = paired_agent_dist_from_goal
+
 		# rew = -(my_dist_from_goal + paired_agent_dist_from_goal)
-		rew = -paired_agent_dist_from_goal
+		# rew = -paired_agent_dist_from_goal
 		# if world.agents[my_index].collide:
 		# 	for a in world.agents:
 		# 		if self.is_collision(a, world.agents[my_index]):
 		# 			rew -= 1
 
-		if world.agents[paired_agent_index].collide:
-			for a in world.agents:
-				if self.is_collision(a, world.agents[paired_agent_index]):
-					rew -= 1
+		# if world.agents[paired_agent_index].collide:
+		# 	for a in world.agents:
+		# 		if self.is_collision(a, world.agents[paired_agent_index]):
+		# 			rew -= 1
 		
 		return rew
 
@@ -110,8 +117,14 @@ class Scenario(BaseScenario):
 		curr_agent_index = world.agents.index(agent)
 		paired_agent_index = len(world.agents)-int(agent.name[-1])-1
 
+		# DROPPING PAIRED AGENT'S GOAL POSE
+		# current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
+		
 		current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos,world.landmarks[paired_agent_index].state.p_pos]
 		# current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
+		# dropping velocity from observation space
+		# current_agent_critic = [agent.state.p_pos,world.landmarks[curr_agent_index].state.p_pos,world.landmarks[paired_agent_index].state.p_pos]
+		
 		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
 		other_agents_actor = []
 

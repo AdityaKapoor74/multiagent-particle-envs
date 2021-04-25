@@ -71,6 +71,8 @@ class Agent(Entity):
         self.c_noise = None
         # control range
         self.u_range = 1.0
+        # prevDistance from goal
+        self.prevDistance = 0.0
         # state
         self.state = AgentState()
         # action
