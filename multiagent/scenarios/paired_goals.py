@@ -1,6 +1,8 @@
 import numpy as np
 from multiagent.core import World, Agent, Landmark
 from multiagent.scenario import BaseScenario
+from itertools import cycle
+
 
 
 class Scenario(BaseScenario):
@@ -8,11 +10,17 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
+		self.threshold_dist = 0.1
 		self.num_agents = 4
 		self.num_landmarks = 4
+
+		self.exist_pen = -0.01
+		self.cum_pen = 0 
+
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
+
 
 		# add agents
 		world.agents = [Agent() for i in range(self.num_agents)]
@@ -20,14 +28,17 @@ class Scenario(BaseScenario):
 			agent.name = 'agent %d' % i
 			agent.collide = True
 			agent.silent = True
-			agent.size = 0.15 #was 0.15
-			agent.prevDistance = 0.0
+			agent.size = 0.1
+
+		# Pairing landmarks i with N-i
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
 		for i, landmark in enumerate(world.landmarks):
 			landmark.name = 'landmark %d' % i
 			landmark.collide = False
 			landmark.movable = False
+
+
 		# make initial conditions
 		self.reset_world(world)
 		return world
@@ -37,13 +48,12 @@ class Scenario(BaseScenario):
 		base_color_agent = np.array([0.45, 0.45, 0.85])
 		base_color_landmark = np.array([0.1, 0.1, 0.1])
 
-		for i in range(int(self.num_agents/2)):
-			world.agents[i].color = base_color_agent + i/self.num_agents
-			world.agents[self.num_agents - 1 - i].color = base_color_agent + i/self.num_agents
+		for i in range(int(self.num_agents)):
+			world.agents[i].color = base_color_agent + (i*self.num_agents)/10.0
 
 		for i in range(int(self.num_landmarks/2)):
-			world.landmarks[i].color = base_color_landmark + i/self.num_landmarks
-			world.landmarks[self.num_landmarks - 1 - i].color = base_color_landmark + i/self.num_landmarks
+			world.landmarks[i].color = base_color_landmark + (i*self.num_landmarks)/10.0
+			world.landmarks[self.num_landmarks - 1 - i].color = base_color_landmark + (i*self.num_agents)/10.0
 
 
 		# set random initial states
@@ -57,6 +67,8 @@ class Scenario(BaseScenario):
 		for i, landmark in enumerate(world.landmarks):
 			landmark.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
 			landmark.state.p_vel = np.zeros(world.dim_p)
+
+		self.cum_pen = 0
 
 	def benchmark_data(self, agent, world):
 		rew = 0
@@ -87,27 +99,36 @@ class Scenario(BaseScenario):
 
 
 	def reward_paired_agents(self, agent, world):
-		my_index = int(agent.name[-1])
-		paired_agent_index = len(world.agents)-int(agent.name[-1])-1
 
+		# penalty of existence till timestep t
+		rew = self.cum_pen
+		self.cum += self.exist_pen
 
-		# my_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
-		paired_agent_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[paired_agent_index].state.p_pos - world.landmarks[paired_agent_index].state.p_pos)))
+		# calculating distance from goal positions
+		dist_from_landmark = [np.sqrt(np.sum(np.square(agent.state.p_pos - l.state.p_pos))) for l in world.landmarks]
+		
+		if min(dist_from_landmark) < self.threshold_dist:
+			# First of the landmark pair
+			if np.argmin(dist_from_landmark) < self.num_landmarks/2:
+				rew += 1.0
+			else:
+				rew += 0.5
 
-		rew = agent.prevDistance - paired_agent_dist_from_goal
-		agent.prevDistance = paired_agent_dist_from_goal
+		# reward due to implicit partner being on the other paired goal position
+		if min(dist_from_landmark) < self.threshold_dist and np.argmin(dist_from_landmark) < self.num_landmarks/2:
+			# check if the other paired goal location is occupied or not
+			paired_landmark_index = self.num_landmarks - 1 - np.argmin(dist_from_landmark)
+			# calculate distance of paired landmark with other agents in the environment
+			dist_from_paired_landmark = [np.sqrt(np.sum(np.square(world.landmarks[paired_landmark_index].state.p_pos - other_agent.state.p_pos))) for other_agent in world.agents]
+			# should not be the same agent and should be at the landmark
+			if min(dist_from_paired_landmark) < self.threshold_dist and np.argmin(dist_from_paired_landmark) != int(agent.name[-1]):
+				rew += 5.0
 
-		# rew = -(my_dist_from_goal + paired_agent_dist_from_goal)
-		# rew = -paired_agent_dist_from_goal
-		# if world.agents[my_index].collide:
-		# 	for a in world.agents:
-		# 		if self.is_collision(a, world.agents[my_index]):
-		# 			rew -= 1
-
-		# if world.agents[paired_agent_index].collide:
-		# 	for a in world.agents:
-		# 		if self.is_collision(a, world.agents[paired_agent_index]):
-		# 			rew -= 1
+		# COLLISION
+		if agent.collide:
+			for a in world.agents:
+				if self.is_collision(a, agent):
+					rew -= 0.04
 		
 		return rew
 
@@ -138,9 +159,9 @@ class Scenario(BaseScenario):
 
 
 	def isFinished(self,agent,world):
-		index = len(world.agents)-int(agent.name[-1])-1
+		index = int(agent.name[-1])
 		dist = np.sqrt(np.sum(np.square(world.agents[index].state.p_pos - world.landmarks[index].state.p_pos)))
-		if dist<0.1:
+		if dist<self.threshold_dist:
 			return True
 		return False
 		
