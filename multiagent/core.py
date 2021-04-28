@@ -73,6 +73,8 @@ class Agent(Entity):
         self.u_range = 1.0
         # prevDistance from goal
         self.prevDistance = 0.0
+        # agent team num
+        self.team_id = None
         # state
         self.state = AgentState()
         # action
