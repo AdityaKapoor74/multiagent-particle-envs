@@ -7,13 +7,12 @@ class Scenario(BaseScenario):
 	def make_world(self):
 		world = World()
 		# set any world properties first
-		self.num_agents = 2
-		self.num_landmarks = 2
+		# world.dim_c = 2
+		self.num_agents = 4
+		self.num_landmarks = 4
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
-
-		self.threshold_dist = 0.1
 
 		# add agents
 		world.agents = [Agent() for i in range(self.num_agents)]
@@ -22,6 +21,7 @@ class Scenario(BaseScenario):
 			agent.collide = True
 			agent.silent = True
 			agent.size = 0.15 #was 0.15
+			agent.prevDistance = 0.0
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
 		for i, landmark in enumerate(world.landmarks):
@@ -34,21 +34,38 @@ class Scenario(BaseScenario):
 
 	def reset_world(self, world):
 
-		# random properties for agents
-		for i, agent in enumerate(world.agents):
-			agent.color = np.array([0.35, 0.35, 0.85])
-		# random properties for landmarks
-		for i, landmark in enumerate(world.landmarks):
-			landmark.color = np.array([0.25, 0.25, 0.25])
+		base_color = np.array([0.1, 0.1, 0.1])
+
+		for i in range(self.num_agents):
+			rgb = np.random.uniform(-1,1,3)
+			world.agents[i].color = rgb
+			world.landmarks[i].color = rgb
+
+
 		# set random initial states
-		for agent in world.agents:
-			agent.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
+		for i, agent in enumerate(world.agents):
+			if i == 0:
+				agent.state.p_pos = np.array([-0.15,-0.85])
+			elif i== 3:
+				agent.state.p_pos = np.array([-0.85,-0.85])
+			elif i== 1:
+				agent.state.p_pos = np.array([0.15,-0.85])
+			elif i== 2:
+				agent.state.p_pos = np.array([0.85,-0.85])
+
 			agent.state.p_vel = np.zeros(world.dim_p)
 			agent.state.c = np.zeros(world.dim_c)
+			agent.prevDistance = 0.0
 
 		for i, landmark in enumerate(world.landmarks):
-			landmark.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
-			landmark.state.p_vel = np.zeros(world.dim_p)
+			if i == 0:
+				landmark.state.p_pos = np.array([-0.85,0.85])
+			elif i== 3:
+				landmark.state.p_pos = np.array([-0.15,0.85])
+			elif i== 1:
+				landmark.state.p_pos = np.array([0.85,0.85])
+			elif i== 2:
+				landmark.state.p_pos = np.array([0.15,0.85])
 
 	def benchmark_data(self, agent, world):
 		rew = 0
@@ -77,32 +94,31 @@ class Scenario(BaseScenario):
 		dist_min = agent1.size + agent2.size
 		return True if dist < dist_min else False
 
-	
-	# with respect to landmarks
+
 	def reward(self, agent, world):
-		# Agents are rewarded based on minimum agent distance to each landmark, penalized for collisions
-		index = int(agent.name[-1])
-		dist_from_agent = [np.sqrt(np.sum(np.square(agent.state.p_pos - world.landmarks[index].state.p_pos))) for agent in world.agents]
+		my_index = int(agent.name[-1])
+		
+		agent_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
 
-		rew = -min(dist_from_agent)
+		rew = agent.prevDistance - agent_dist_from_goal
+		agent.prevDistance = agent_dist_from_goal
 
-		# COLLISON
-		# if agent.collide:
-		# 	for a in world.agents:
-		# 		if self.is_collision(a, agent):
-		# 			rew -= 1
-
+		if world.agents[my_index].collide:
+			for a in world.agents:
+				if self.is_collision(a, world.agents[my_index]):
+					rew -= 1.0
+		
 		return rew
 
+
 	def observation(self, agent, world):
-		index = int(int(agent.name[-1]))
 
-		current_agent_critic = [agent.state.p_pos,agent.state.p_vel]
+		curr_agent_index = world.agents.index(agent)
 
-		# Can do this as number of agents and landmarks are equal so with each agent obs, we return a landmark's pose
-		goal_state = world.landmarks[index].state.p_pos
+		current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
 		
-		current_agent_actor = [agent.state.p_pos,agent.state.p_vel]
+		
+		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
 		other_agents_actor = []
 
 		for other_agent in world.agents:
@@ -111,22 +127,13 @@ class Scenario(BaseScenario):
 			other_agents_actor.append(other_agent.state.p_pos-agent.state.p_pos)
 			other_agents_actor.append(other_agent.state.p_vel-agent.state.p_vel)
 
-		current_agent_actor = current_agent_actor+other_agents_actor
+		return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor+other_agents_actor)
 
-		for landmark in world.landmarks:
-			current_agent_actor.append(landmark.state.p_pos - agent.state.p_pos)
-
-
-		return np.concatenate(current_agent_critic), np.concatenate(current_agent_actor), goal_state
-
-
-	
 
 	def isFinished(self,agent,world):
 		index = int(agent.name[-1])
-		dist_from_agent = [np.sqrt(np.sum(np.square(agent.state.p_pos - world.landmarks[index].state.p_pos))) for agent in world.agents]
-		if min(dist_from_agent)<self.threshold_dist:
+		dist = np.sqrt(np.sum(np.square(world.agents[index].state.p_pos - world.landmarks[index].state.p_pos)))
+		if dist<0.1:
 			return True
 		return False
-		
 		

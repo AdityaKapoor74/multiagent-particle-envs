@@ -121,7 +121,7 @@ class Scenario(BaseScenario):
 		# current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
 		
 		current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos,world.landmarks[paired_agent_index].state.p_pos]
-		# current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
+
 		# dropping velocity from observation space
 		# current_agent_critic = [agent.state.p_pos,world.landmarks[curr_agent_index].state.p_pos,world.landmarks[paired_agent_index].state.p_pos]
 		

@@ -14,8 +14,8 @@ class Scenario(BaseScenario):
 		self.num_agents = 4
 		self.num_landmarks = 4
 
-		self.exist_pen = -0.01
-		self.cum_pen = 0 
+		self.exist_pen = -0.001
+		self.cum_pen = [0]*self.num_agents
 
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
@@ -62,13 +62,11 @@ class Scenario(BaseScenario):
 			agent.state.p_vel = np.zeros(world.dim_p)
 			agent.state.c = np.zeros(world.dim_c)
 
-			agent.prevDistance = 0.0
-
 		for i, landmark in enumerate(world.landmarks):
 			landmark.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
 			landmark.state.p_vel = np.zeros(world.dim_p)
 
-		self.cum_pen = 0
+		self.cum_pen = [0]*self.num_agents
 
 	def benchmark_data(self, agent, world):
 		rew = 0
@@ -101,9 +99,11 @@ class Scenario(BaseScenario):
 	def reward_paired_agents(self, agent, world):
 
 		# penalty of existence till timestep t
-		rew = self.cum_pen
-		self.cum += self.exist_pen
+		# agent_id = int(agent.name[-1])
+		# rew = self.cum_pen[agent_id]
+		# self.cum_pen[agent_id] += self.exist_pen
 
+		rew = -0.01
 		# calculating distance from goal positions
 		dist_from_landmark = [np.sqrt(np.sum(np.square(agent.state.p_pos - l.state.p_pos))) for l in world.landmarks]
 		
@@ -124,29 +124,21 @@ class Scenario(BaseScenario):
 			if min(dist_from_paired_landmark) < self.threshold_dist and np.argmin(dist_from_paired_landmark) != int(agent.name[-1]):
 				rew += 5.0
 
-		# COLLISION
-		if agent.collide:
-			for a in world.agents:
-				if self.is_collision(a, agent):
-					rew -= 0.04
+		# # COLLISION
+		# if agent.collide:
+		# 	for a in world.agents:
+		# 		if self.is_collision(a, agent):
+		# 			rew -= 0.04
 		
 		return rew
 
 
 	def observation(self, agent, world):
 
-		curr_agent_index = world.agents.index(agent)
-		paired_agent_index = len(world.agents)-int(agent.name[-1])-1
+		current_agent_critic = [agent.state.p_pos,agent.state.p_vel]
 
-		# DROPPING PAIRED AGENT'S GOAL POSE
-		# current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
 		
-		current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos,world.landmarks[paired_agent_index].state.p_pos]
-		# current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
-		# dropping velocity from observation space
-		# current_agent_critic = [agent.state.p_pos,world.landmarks[curr_agent_index].state.p_pos,world.landmarks[paired_agent_index].state.p_pos]
-		
-		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
+		current_agent_actor = [agent.state.p_pos,agent.state.p_vel]
 		other_agents_actor = []
 
 		for other_agent in world.agents:
@@ -155,13 +147,19 @@ class Scenario(BaseScenario):
 			other_agents_actor.append(other_agent.state.p_pos-agent.state.p_pos)
 			other_agents_actor.append(other_agent.state.p_vel-agent.state.p_vel)
 
-		return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor+other_agents_actor)
+		current_agent_actor = current_agent_actor+other_agents_actor
+
+		for landmark in world.landmarks:
+			current_agent_critic.append(landmark.state.p_pos)
+			current_agent_actor.append(landmark.state.p_pos - agent.state.p_pos)
+
+
+		return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor)
 
 
 	def isFinished(self,agent,world):
-		index = int(agent.name[-1])
-		dist = np.sqrt(np.sum(np.square(world.agents[index].state.p_pos - world.landmarks[index].state.p_pos)))
-		if dist<self.threshold_dist:
+		dist_from_landmark = [np.sqrt(np.sum(np.square(agent.state.p_pos - l.state.p_pos))) for l in world.landmarks]
+		if min(dist_from_landmark)<self.threshold_dist:
 			return True
 		return False
 		
