@@ -86,13 +86,15 @@ class Scenario(BaseScenario):
 
 		rew = -min(dist_from_agent)
 
+		which_agent = np.argmin(dist_from_agent)
+
 		# COLLISON
 		# if agent.collide:
 		# 	for a in world.agents:
 		# 		if self.is_collision(a, agent):
 		# 			rew -= 1
 
-		return rew
+		return (rew, which_agent)
 
 	def observation(self, agent, world):
 		index = int(int(agent.name[-1]))

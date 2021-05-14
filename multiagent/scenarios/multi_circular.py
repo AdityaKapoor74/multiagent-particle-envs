@@ -106,7 +106,7 @@ class Scenario(BaseScenario):
 		if world.agents[my_index].collide:
 			for a in world.agents:
 				if self.is_collision(a, world.agents[my_index]):
-					rew -= 1.0
+					rew -= 0.1
 		
 		return rew
 
