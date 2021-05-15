@@ -1,6 +1,7 @@
 import numpy as np
 from multiagent.core import World, Agent, Landmark
 from multiagent.scenario import BaseScenario
+import webcolors
 
 
 class Scenario(BaseScenario):
@@ -33,14 +34,17 @@ class Scenario(BaseScenario):
 		return world
 
 	def reset_world(self, world):
+		color_choice = [np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([0,0,0]), np.array([128,0,0]), np.array([0,128,0]), np.array([0,0,128]), np.array([128,128,128])]
 
 		base_color = np.array([0.1, 0.1, 0.1])
 
 		for i in range(self.num_agents):
-			rgb = np.random.uniform(-1,1,3)
-			world.agents[i].color = rgb
-			world.landmarks[i].color = rgb
-
+			# rgb = np.random.uniform(-1,1,3)
+			# world.agents[i].color = rgb
+			# world.landmarks[i].color = rgb
+			world.agents[i].color = color_choice[i]
+			world.landmarks[i].color = color_choice[i]
+			print("AGENT", world.agents[i].name[-1], ":", webcolors.rgb_to_name((color_choice[i][0],color_choice[i][1],color_choice[i][2])))
 
 		# set random initial states
 		for i, agent in enumerate(world.agents):
