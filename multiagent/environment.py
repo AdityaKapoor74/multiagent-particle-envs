@@ -77,11 +77,51 @@ class MultiAgentEnv(gym.Env):
             self.viewers = [None] * self.n
         self._reset_render()
 
+
+    def configure_spaces(self):
+        # configure spaces
+        self.action_space = []
+        self.observation_space = []
+        for agent in self.agents:
+            total_action_space = []
+            # physical action space
+            if self.discrete_action_space:
+                u_action_space = spaces.Discrete(self.world.dim_p * 2 + 1)
+            else:
+                u_action_space = spaces.Box(low=-agent.u_range, high=+agent.u_range, shape=(self.world.dim_p,), dtype=np.float32)
+            if agent.movable:
+                total_action_space.append(u_action_space)
+            # communication action space
+            if self.discrete_action_space:
+                c_action_space = spaces.Discrete(self.world.dim_c)
+            else:
+                c_action_space = spaces.Box(low=0.0, high=1.0, shape=(self.world.dim_c,), dtype=np.float32)
+            if not agent.silent:
+                total_action_space.append(c_action_space)
+            # total action space
+            if len(total_action_space) > 1:
+                # all action spaces are discrete, so simplify to MultiDiscrete action space
+                if all([isinstance(act_space, spaces.Discrete) for act_space in total_action_space]):
+                    act_space = MultiDiscrete([[0, act_space.n - 1] for act_space in total_action_space])
+                else:
+                    act_space = spaces.Tuple(total_action_space)
+                self.action_space.append(act_space)
+            else:
+                self.action_space.append(total_action_space[0])
+            # observation space
+            obs_dim = len(self.observation_callback(agent, self.world))
+            self.observation_space.append(spaces.Box(low=-np.inf, high=+np.inf, shape=(obs_dim,), dtype=np.float32))
+            agent.action.c = np.zeros(self.world.dim_c)
+
     def step(self, action_n):
         obs_n = []
         reward_n = []
         done_n = []
         info_n = {'n': []}
+
+        # FOR RANDOIZING NUMBER OF AGENTS
+        self.configure_spaces()
+
         self.agents = self.world.policy_agents
         # set action for each agent
         for i, agent in enumerate(self.agents):
@@ -106,6 +146,7 @@ class MultiAgentEnv(gym.Env):
     def reset(self):
         # reset world
         self.reset_callback(self.world)
+        self.n = len(self.world.policy_agents)
         # reset renderer
         self._reset_render()
         # record observations for each agent
