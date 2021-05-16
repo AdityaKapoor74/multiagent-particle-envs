@@ -32,7 +32,7 @@ class Scenario(BaseScenario):
 		self.reset_world(world)
 		return world
 
-	def reset_world(self, world):
+	def reset_world(self, world, num_agents):
 
 		base_color_agent = np.array([0.45, 0.45, 0.85])
 		base_color_landmark = np.array([0.1, 0.1, 0.1])

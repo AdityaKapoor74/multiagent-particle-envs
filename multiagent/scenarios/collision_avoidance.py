@@ -9,8 +9,8 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 8
-		self.num_landmarks = 8
+		self.num_agents = 6
+		self.num_landmarks = 6
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
@@ -60,7 +60,7 @@ class Scenario(BaseScenario):
 			return False
 
 	def reset_world(self, world):
-		color_choice = [np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([0,0,0]), np.array([128,0,0]), np.array([0,128,0]), np.array([0,0,128]), np.array([128,128,128])]
+		color_choice = [np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([0,0,0]), np.array([128,0,0]), np.array([0,128,0]), np.array([0,0,128]), np.array([128,128,128]), np.array([128,0,128]), np.array([128,128,0])]
 
 		for i in range(self.num_agents):
 			# rgb = np.random.uniform(-1,1,3)
@@ -70,7 +70,7 @@ class Scenario(BaseScenario):
 			# world.landmarks[i].color = rgb
 			world.agents[i].color = color_choice[i]
 			world.landmarks[i].color = color_choice[i]
-			print("AGENT", world.agents[i].name[-1], ":", webcolors.rgb_to_name((color_choice[i][0],color_choice[i][1],color_choice[i][2])))
+			# print("AGENT", world.agents[i].name[-1], ":", webcolors.rgb_to_name((color_choice[i][0],color_choice[i][1],color_choice[i][2])))
 
 		agent_list = []
 		# set random initial states
@@ -146,15 +146,16 @@ class Scenario(BaseScenario):
 		current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
 		
 		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
-		other_agents_actor = []
+		# other_agents_actor = []
 
-		for other_agent in world.agents:
-			if other_agent is agent:
-			  continue
-			other_agents_actor.append(other_agent.state.p_pos-agent.state.p_pos)
-			other_agents_actor.append(other_agent.state.p_vel-agent.state.p_vel)
+		# for other_agent in world.agents:
+		# 	if other_agent is agent:
+		# 	  continue
+		# 	other_agents_actor.append(other_agent.state.p_pos-agent.state.p_pos)
+		# 	other_agents_actor.append(other_agent.state.p_vel-agent.state.p_vel)
 
-		return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor+other_agents_actor)
+		# return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor+other_agents_actor)
+		return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor)
 
 
 	def isFinished(self,agent,world):
