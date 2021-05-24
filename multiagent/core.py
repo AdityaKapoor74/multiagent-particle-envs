@@ -74,6 +74,8 @@ class Agent(Entity):
         self.u_range = 1.0
         # prevDistance from goal
         self.prevDistance = 0.0
+        # firection to move
+        self.direction = ""
         # agent team num
         self.team_id = None
         # state
