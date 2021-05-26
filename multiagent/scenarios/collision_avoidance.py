@@ -136,11 +136,19 @@ class Scenario(BaseScenario):
 		# 		if self.is_collision(a, agent):
 		# 			rew -= 0.1
 
-		# SHARED COLLISION REWARD
+		# # SHARED COLLISION REWARD
+		# for a in world.agents:
+		# 	for o in world.agents:
+		# 		if self.is_collision(a,o):
+		# 			rew -=0.1/self.num_agents
+
+		# COLLISION REWARD FOR OTHER AGENTS
 		for a in world.agents:
-			for o in world.agents:
-				if self.is_collision(a,o):
-					rew -=0.1/self.num_agents
+			if a.name != agent.name:
+				for o in world.agents:
+					if o.name != agent.name:
+						if self.is_collision(a,o):
+							rew -=0.1/self.num_agents
 		
 		return rew
 
