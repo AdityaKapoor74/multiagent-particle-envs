@@ -144,29 +144,6 @@ class Scenario(BaseScenario):
 
 		for agent in world.agents[:self.num_agents]:
 			agent.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
-			# if "people" in agent.name:
-			# 	# along_axis = random.randint(0,3)
-			# 	along_axis = 0#random.randint(0,1)
-			# 	if along_axis == 0:
-			# 		x = random.uniform(-1,1)
-			# 		y = -1
-			# 		agent.state.p_pos = np.array([x,y])
-			# 		agent.direction = "x"
-			# 	elif along_axis == 1:
-			# 		y = random.uniform(-1,1)
-			# 		x = -1
-			# 		agent.state.p_pos = np.array([x,y])
-			# 		agent.direction = "y" 
-			# 	elif along_axis == 2:
-			# 		x = random.uniform(-1,1)
-			# 		y = random.uniform(-1,1)
-			# 		agent.state.p_pos = np.array([x,y])
-			# 		agent.direction = "random" 
-			# 	else:
-			# 		x = random.uniform(-1,1)
-			# 		y = random.uniform(-1,1)
-			# 		agent.state.p_pos = np.array([x,y])
-					# agent.direction = "none" 
 
 			while self.check_collision_before_spawning(agent, None, agent_list, None):
 				agent.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
@@ -205,12 +182,19 @@ class Scenario(BaseScenario):
 		return (rew, collisions, min_dists, occupied_landmarks)
 
 
-	def is_collision(self, agent1, agent2):
+	def is_collision_agent(self, agent1, agent2):
 		if agent1.name == agent2.name:
 			return False
 		delta_pos = agent1.state.p_pos - agent2.state.p_pos
 		dist = np.sqrt(np.sum(np.square(delta_pos)))
 		dist_min = (agent1.size + agent2.size) * 1.5
+		return True if dist < dist_min else False
+
+
+	def is_collision_people(self, agent, human):
+		delta_pos = agent.state.p_pos - human.state.p_pos
+		dist = np.sqrt(np.sum(np.square(delta_pos)))
+		dist_min = (agent.size + human.size) * 1.5
 		return True if dist < dist_min else False
 
 
@@ -227,9 +211,14 @@ class Scenario(BaseScenario):
 		agent.prevDistance = my_dist_from_goal
 
 		if agent.collide:
-			for a in world.agents:
-				if self.is_collision(a, agent):
+			for a in world.agents[:self.num_agents]:
+				if self.is_collision_agent(a, agent):
 					rew -= 0.1
+
+			for a in world.agents[:self.num_agents]:
+				for h in world.agents[self.num_agents:]:
+					if self.is_collision_people(a,h):
+						rew -= 0.1
 		
 		return rew
 

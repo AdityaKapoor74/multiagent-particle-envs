@@ -131,10 +131,16 @@ class Scenario(BaseScenario):
 		rew = agent.prevDistance - my_dist_from_goal
 		agent.prevDistance = my_dist_from_goal
 
-		if agent.collide:
-			for a in world.agents:
-				if self.is_collision(a, agent):
-					rew -= 0.1
+		# if agent.collide:
+		# 	for a in world.agents:
+		# 		if self.is_collision(a, agent):
+		# 			rew -= 0.1
+
+		# SHARED COLLISION REWARD
+		for a in world.agents:
+			for o in world.agents:
+				if self.is_collision(a,o):
+					rew -=0.1/self.num_agents
 		
 		return rew
 
