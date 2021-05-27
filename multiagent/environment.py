@@ -120,7 +120,7 @@ class MultiAgentEnv(gym.Env):
         info_n = {'n': []}
 
         # FOR RANDOIZING NUMBER OF AGENTS
-        # self.configure_spaces()
+        self.configure_spaces()
 
         self.agents = self.world.policy_agents
         # set action for each agent
