@@ -55,7 +55,7 @@ class Scenario(BaseScenario):
 		for i, landmark in enumerate(world.landmarks):
 			landmark.name = 'landmark %d' % i
 			landmark.collide = False
-		# 	landmark.movable = False
+			landmark.movable = False
 
 
 		base_color_agent = np.array([0.45, 0.45, 0.85])
