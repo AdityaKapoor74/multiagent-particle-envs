@@ -11,8 +11,8 @@ class Scenario(BaseScenario):
 		# world.dim_c = 2
 		self.num_agents = 10
 		self.num_landmarks = 10
-		# print("NUMBER OF AGENTS:",self.num_agents)
-		# print("NUMBER OF LANDMARKS:",self.num_landmarks)
+		print("NUMBER OF AGENTS:",self.num_agents)
+		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
 
 		# add agents
@@ -35,27 +35,27 @@ class Scenario(BaseScenario):
 
 	def reset_world(self, world):
 
-		# RANDOMIZE NUMBER OF AGENTS
-		self.num_agents = random.randint(1,5)*2
-		self.num_landmarks = self.num_agents
-		print("NUMBER OF AGENTS:",self.num_agents)
-		print("NUMBER OF LANDMARKS:",self.num_landmarks)
-		world.collaborative = True
+		# # RANDOMIZE NUMBER OF AGENTS
+		# self.num_agents = random.randint(1,5)*2
+		# self.num_landmarks = self.num_agents
+		# print("NUMBER OF AGENTS:",self.num_agents)
+		# print("NUMBER OF LANDMARKS:",self.num_landmarks)
+		# world.collaborative = True
 
-		# add agents
-		world.agents = [Agent() for i in range(self.num_agents)]
-		for i, agent in enumerate(world.agents):
-			agent.name = 'agent %d' % i
-			agent.collide = True
-			agent.silent = True
-			agent.size = 0.1 #was 0.15
-			agent.prevDistance = 0.0
-		# add landmarks
-		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
-		for i, landmark in enumerate(world.landmarks):
-			landmark.name = 'landmark %d' % i
-			landmark.collide = False
-			landmark.movable = False
+		# # add agents
+		# world.agents = [Agent() for i in range(self.num_agents)]
+		# for i, agent in enumerate(world.agents):
+		# 	agent.name = 'agent %d' % i
+		# 	agent.collide = True
+		# 	agent.silent = True
+		# 	agent.size = 0.1 #was 0.15
+		# 	agent.prevDistance = 0.0
+		# # add landmarks
+		# world.landmarks = [Landmark() for i in range(self.num_landmarks)]
+		# for i, landmark in enumerate(world.landmarks):
+		# 	landmark.name = 'landmark %d' % i
+		# 	landmark.collide = False
+		# 	landmark.movable = False
 
 
 		base_color_agent = np.array([0.45, 0.45, 0.85])
