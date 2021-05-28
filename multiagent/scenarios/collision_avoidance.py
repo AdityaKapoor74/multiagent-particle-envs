@@ -148,7 +148,7 @@ class Scenario(BaseScenario):
 				for o in world.agents:
 					if o.name != agent.name:
 						if self.is_collision(a,o):
-							rew -=0.1/self.num_agents
+							rew -= 0.1
 		
 		return rew
 
