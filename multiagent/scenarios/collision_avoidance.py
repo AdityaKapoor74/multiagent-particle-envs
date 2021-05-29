@@ -15,6 +15,8 @@ class Scenario(BaseScenario):
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
 
+		self.pen_existence = 0.01
+
 		# add agents
 		world.agents = [Agent() for i in range(self.num_agents)]
 		for i, agent in enumerate(world.agents):
@@ -149,6 +151,9 @@ class Scenario(BaseScenario):
 					if o.name != agent.name:
 						if self.is_collision(a,o):
 							rew -= 0.1
+
+		# Penalty of existence
+		rew -= self.pen_existence
 		
 		return rew
 
