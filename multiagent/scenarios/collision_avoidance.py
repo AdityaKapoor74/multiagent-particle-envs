@@ -9,8 +9,8 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 6
-		self.num_landmarks = 6
+		self.num_agents = 8
+		self.num_landmarks = 8
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
@@ -22,6 +22,7 @@ class Scenario(BaseScenario):
 		for i, agent in enumerate(world.agents):
 			agent.name = 'agent %d' % i
 			agent.collide = True
+			agent.movable = True
 			agent.silent = True
 			agent.size = 0.1 #was 0.15
 			agent.prevDistance = 0.0
@@ -65,13 +66,13 @@ class Scenario(BaseScenario):
 		color_choice = [np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([0,0,0]), np.array([128,0,0]), np.array([0,128,0]), np.array([0,0,128]), np.array([128,128,128]), np.array([128,0,128]), np.array([128,128,0])]
 
 		for i in range(self.num_agents):
-			# rgb = np.random.uniform(-1,1,3)
+			rgb = np.random.uniform(-1,1,3)
 			# rgb = np.random.randint(0,255,3)
 			# print(rgb)
-			# world.agents[i].color = rgb
-			# world.landmarks[i].color = rgb
-			world.agents[i].color = color_choice[i]
-			world.landmarks[i].color = color_choice[i]
+			world.agents[i].color = rgb
+			world.landmarks[i].color = rgb
+			# world.agents[i].color = color_choice[i]
+			# world.landmarks[i].color = color_choice[i]
 			# print("AGENT", world.agents[i].name[-1], ":", webcolors.rgb_to_name((color_choice[i][0],color_choice[i][1],color_choice[i][2])))
 
 		agent_list = []
@@ -145,15 +146,15 @@ class Scenario(BaseScenario):
 		# 			rew -=0.1/self.num_agents
 
 		# COLLISION REWARD FOR OTHER AGENTS
-		for a in world.agents:
-			if a.name != agent.name:
-				for o in world.agents:
-					if o.name != agent.name:
-						if self.is_collision(a,o):
-							rew -= 0.1
+		# for a in world.agents:
+		# 	if a.name != agent.name:
+		# 		for o in world.agents:
+		# 			if o.name != agent.name:
+		# 				if self.is_collision(a,o):
+		# 					rew -= 0.1
 
 		# Penalty of existence
-		rew -= self.pen_existence
+		# rew -= self.pen_existence
 		
 		return rew
 
