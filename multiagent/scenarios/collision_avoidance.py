@@ -9,8 +9,8 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 8
-		self.num_landmarks = 8
+		self.num_agents = 16
+		self.num_landmarks = 16
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
@@ -22,7 +22,7 @@ class Scenario(BaseScenario):
 			agent.collide = True
 			agent.silent = True
 			agent.size = 0.1 #was 0.15
-			agent.prevDistance = 0.0
+			agent.prevDistance = None #0.0
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
 		for i, landmark in enumerate(world.landmarks):
@@ -60,7 +60,7 @@ class Scenario(BaseScenario):
 			return False
 
 	def reset_world(self, world):
-		color_choice = [np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([0,0,0]), np.array([128,0,0]), np.array([0,128,0]), np.array([0,0,128]), np.array([128,128,128]), np.array([128,0,128]), np.array([128,128,0])]
+		color_choice = 2*[np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([0,0,0]), np.array([128,0,0]), np.array([0,128,0]), np.array([0,0,128]), np.array([128,128,128]), np.array([128,0,128]), np.array([128,128,0])]
 
 		for i in range(self.num_agents):
 			# rgb = np.random.uniform(-1,1,3)
@@ -82,7 +82,7 @@ class Scenario(BaseScenario):
 
 			agent.state.p_vel = np.zeros(world.dim_p)
 			agent.state.c = np.zeros(world.dim_c)
-			agent.prevDistance = 0.0
+			agent.prevDistance = None # 0.0
 			agent_list.append(agent)
 
 		landmark_list = []
@@ -128,7 +128,12 @@ class Scenario(BaseScenario):
 
 		my_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
 
-		rew = agent.prevDistance - my_dist_from_goal
+		
+		if agent.prevDistance is not None:
+			rew = agent.prevDistance - my_dist_from_goal
+		else:
+			rew = 0.0
+
 		agent.prevDistance = my_dist_from_goal
 
 		# if agent.collide:
@@ -150,6 +155,11 @@ class Scenario(BaseScenario):
 		# 				if self.is_collision(a,o):
 		# 					rew -= 0.1
 		
+		if my_dist_from_goal > .1:
+			# add existance penalty
+			rew += -0.01
+
+
 		return rew
 
 
