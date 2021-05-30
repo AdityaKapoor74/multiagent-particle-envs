@@ -1,7 +1,7 @@
 import numpy as np
 from multiagent.core import World, Agent, Landmark
 from multiagent.scenario import BaseScenario
-import webcolors
+# import webcolors
 
 
 class Scenario(BaseScenario):
@@ -9,8 +9,8 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 6
-		self.num_landmarks = 6
+		self.num_agents = 8
+		self.num_landmarks = 8
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
@@ -143,12 +143,12 @@ class Scenario(BaseScenario):
 		# 			rew -=0.1/self.num_agents
 
 		# COLLISION REWARD FOR OTHER AGENTS
-		for a in world.agents:
-			if a.name != agent.name:
-				for o in world.agents:
-					if o.name != agent.name:
-						if self.is_collision(a,o):
-							rew -= 0.1
+		# for a in world.agents:
+		# 	if a.name != agent.name:
+		# 		for o in world.agents:
+		# 			if o.name != agent.name:
+		# 				if self.is_collision(a,o):
+		# 					rew -= 0.1
 		
 		return rew
 
