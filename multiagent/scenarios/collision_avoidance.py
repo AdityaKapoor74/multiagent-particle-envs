@@ -85,7 +85,7 @@ class Scenario(BaseScenario):
 
 			agent.state.p_vel = np.zeros(world.dim_p)
 			agent.state.c = np.zeros(world.dim_c)
-			agent.prevDistance = 0.0
+			agent.prevDistance = None
 			agent_list.append(agent)
 
 		landmark_list = []
@@ -131,7 +131,11 @@ class Scenario(BaseScenario):
 
 		my_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
 
-		rew = agent.prevDistance - my_dist_from_goal
+		if agent.prevDistance is None:
+			rew = 0
+		else:
+			rew = agent.prevDistance - my_dist_from_goal
+			
 		agent.prevDistance = my_dist_from_goal
 
 		# if agent.collide:

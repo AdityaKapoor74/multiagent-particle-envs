@@ -9,8 +9,8 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 4
-		self.num_landmarks = 4
+		self.num_agents = 10
+		self.num_landmarks = 10
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
@@ -22,7 +22,7 @@ class Scenario(BaseScenario):
 			agent.collide = True
 			agent.silent = True
 			agent.size = 0.1 #was 0.15
-			agent.prevDistance = 0.0
+			agent.prevDistance = None
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
 		for i, landmark in enumerate(world.landmarks):
@@ -119,7 +119,11 @@ class Scenario(BaseScenario):
 		# my_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
 		paired_agent_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[paired_agent_index].state.p_pos - world.landmarks[paired_agent_index].state.p_pos)))
 
-		rew = agent.prevDistance - paired_agent_dist_from_goal
+		if agent.prevDistance is None:
+			rew = 0
+		else:
+			rew = agent.prevDistance - paired_agent_dist_from_goal
+
 		agent.prevDistance = paired_agent_dist_from_goal
 
 		# rew = -(my_dist_from_goal + paired_agent_dist_from_goal)
