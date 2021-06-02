@@ -35,6 +35,10 @@ class Scenario(BaseScenario):
 
 	def reset_world(self, world):
 		color_choice = [np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([0,0,0]), np.array([128,0,0]), np.array([0,128,0]), np.array([0,0,128]), np.array([128,128,128])]
+		# AGENT 0 : red
+		# AGENT 1 : lime
+		# AGENT 2 : blue
+		# AGENT 3 : black
 
 		base_color = np.array([0.1, 0.1, 0.1])
 
@@ -44,7 +48,7 @@ class Scenario(BaseScenario):
 			# world.landmarks[i].color = rgb
 			world.agents[i].color = color_choice[i]
 			world.landmarks[i].color = color_choice[i]
-			print("AGENT", world.agents[i].name[-1], ":", webcolors.rgb_to_name((color_choice[i][0],color_choice[i][1],color_choice[i][2])))
+			# print("AGENT", world.agents[i].name[-1], ":", webcolors.rgb_to_name((color_choice[i][0],color_choice[i][1],color_choice[i][2])))
 
 		# set random initial states
 		for i, agent in enumerate(world.agents):
@@ -125,11 +129,11 @@ class Scenario(BaseScenario):
 		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
 		other_agents_actor = []
 
-		for other_agent in world.agents:
-			if other_agent is agent:
-			  continue
-			other_agents_actor.append(other_agent.state.p_pos-agent.state.p_pos)
-			other_agents_actor.append(other_agent.state.p_vel-agent.state.p_vel)
+		# for other_agent in world.agents:
+		# 	if other_agent is agent:
+		# 	  continue
+		# 	other_agents_actor.append(other_agent.state.p_pos-agent.state.p_pos)
+		# 	other_agents_actor.append(other_agent.state.p_vel-agent.state.p_vel)
 
 		return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor+other_agents_actor)
 
