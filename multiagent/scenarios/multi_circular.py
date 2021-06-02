@@ -19,7 +19,7 @@ class Scenario(BaseScenario):
 		world.agents = [Agent() for i in range(self.num_agents)]
 		for i, agent in enumerate(world.agents):
 			agent.name = 'agent %d' % i
-			agent.collide = True
+			agent.collide = False
 			agent.silent = True
 			agent.size = 0.15 #was 0.15
 			agent.prevDistance = 0.0
