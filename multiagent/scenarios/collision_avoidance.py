@@ -150,12 +150,12 @@ class Scenario(BaseScenario):
 		# 			rew -=0.1/self.num_agents
 
 		# COLLISION REWARD FOR OTHER AGENTS
-		# for a in world.agents:
-		# 	if a.name != agent.name:
-		# 		for o in world.agents:
-		# 			if o.name != agent.name:
-		# 				if self.is_collision(a,o):
-		# 					rew -= 0.1
+		for a in world.agents:
+			if a.name != agent.name:
+				for o in world.agents:
+					if o.name != agent.name:
+						if self.is_collision(a,o):
+							rew -= 0.01
 
 		# Penalty of existence
 		# rew -= self.pen_existence

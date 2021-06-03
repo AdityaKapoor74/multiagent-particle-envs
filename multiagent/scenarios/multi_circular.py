@@ -10,9 +10,9 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 5
-		self.num_landmarks = 5
-		self.num_circles = 4
+		self.num_agents = 4
+		self.num_landmarks = 4
+		self.num_circles = 2
 		self.num_agents_per_circle = self.num_agents//self.num_circles # keeping it uniform (try to make it a perfectly divisible)
 		self.radius_circle = {1: 1, 2: 0.4, 3: 0.4, 4: 0.15} #(2/(self.num_circles*2))
 		self.centers = {1: [(0.0,0.0)], 2:[(-0.5,0.0), (0.5,0.0)], 3:[(-0.5,-0.5), (0.5,-0.5), (0.0,0.5)], 4:[(-0.5,-0.5), (-0.5,0.5), (0.5, -0.5), (0.5, 0.5)]}#[(-0.5,0.0), (0.5,0.0)]
@@ -51,7 +51,7 @@ class Scenario(BaseScenario):
 				dist = np.sqrt(np.sum(np.square(delta_pos)))
 				dist_min = (agent.size + other_agent.size)
 				if dist < dist_min:
-					print("COLLISION WHILE SPAWNING")
+					# print("COLLISION WHILE SPAWNING")
 					return True 
 
 			return False
