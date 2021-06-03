@@ -1,7 +1,7 @@
 import numpy as np
 from multiagent.core import World, Agent, Landmark
 from multiagent.scenario import BaseScenario
-import webcolors
+# import webcolors
 
 
 class Scenario(BaseScenario):
@@ -14,15 +14,18 @@ class Scenario(BaseScenario):
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
+		self.col_pen = .01
+		world.col_pen = self.col_pen
+		# print('COL PEN: ', self.col_pen)
 
 		# add agents
 		world.agents = [Agent() for i in range(self.num_agents)]
 		for i, agent in enumerate(world.agents):
 			agent.name = 'agent %d' % i
-			agent.collide = True
+			agent.collide = False
 			agent.silent = True
 			agent.size = 0.15 #was 0.15
-			agent.prevDistance = 0.0
+			agent.prevDistance = None #0.0
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
 		for i, landmark in enumerate(world.landmarks):
@@ -44,7 +47,7 @@ class Scenario(BaseScenario):
 			# world.landmarks[i].color = rgb
 			world.agents[i].color = color_choice[i]
 			world.landmarks[i].color = color_choice[i]
-			print("AGENT", world.agents[i].name[-1], ":", webcolors.rgb_to_name((color_choice[i][0],color_choice[i][1],color_choice[i][2])))
+			# print("AGENT", world.agents[i].name[-1], ":", webcolors.rgb_to_name((color_choice[i][0],color_choice[i][1],color_choice[i][2])))
 
 		# set random initial states
 		for i, agent in enumerate(world.agents):
@@ -59,7 +62,7 @@ class Scenario(BaseScenario):
 
 			agent.state.p_vel = np.zeros(world.dim_p)
 			agent.state.c = np.zeros(world.dim_c)
-			agent.prevDistance = 0.0
+			agent.prevDistance = None #0.0
 
 		for i, landmark in enumerate(world.landmarks):
 			if i == 0:
@@ -104,13 +107,28 @@ class Scenario(BaseScenario):
 		
 		agent_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
 
-		rew = agent.prevDistance - agent_dist_from_goal
+		if agent.prevDistance is not None:
+			rew = agent.prevDistance - agent_dist_from_goal
+		else:
+			rew = 0.0
+
 		agent.prevDistance = agent_dist_from_goal
 
-		if world.agents[my_index].collide:
-			for a in world.agents:
-				if self.is_collision(a, world.agents[my_index]):
-					rew -= 0.1
+		# if world.agents[my_index].collide:
+		# 	for a in world.agents:
+		# 		if self.is_collision(a, world.agents[my_index]):
+		# 			rew -= 0.1
+
+		for a in world.agents:
+			if a.name != agent.name:
+				for o in world.agents:
+					if o.name != agent.name:
+						if self.is_collision(a,o):
+							rew -= self.col_pen
+
+		if agent_dist_from_goal > .1:
+			# add existance penalty
+			rew += -0.01
 		
 		return rew
 
@@ -125,11 +143,11 @@ class Scenario(BaseScenario):
 		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
 		other_agents_actor = []
 
-		for other_agent in world.agents:
-			if other_agent is agent:
-			  continue
-			other_agents_actor.append(other_agent.state.p_pos-agent.state.p_pos)
-			other_agents_actor.append(other_agent.state.p_vel-agent.state.p_vel)
+		# for other_agent in world.agents:
+		# 	if other_agent is agent:
+		# 	  continue
+		# 	other_agents_actor.append(other_agent.state.p_pos-agent.state.p_pos)
+		# 	other_agents_actor.append(other_agent.state.p_vel-agent.state.p_vel)
 
 		return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor+other_agents_actor)
 

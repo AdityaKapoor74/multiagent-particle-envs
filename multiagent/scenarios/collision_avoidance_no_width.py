@@ -9,8 +9,8 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 16
-		self.num_landmarks = 16
+		self.num_agents = 8
+		self.num_landmarks = 8
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
@@ -19,7 +19,7 @@ class Scenario(BaseScenario):
 		world.agents = [Agent() for i in range(self.num_agents)]
 		for i, agent in enumerate(world.agents):
 			agent.name = 'agent %d' % i
-			agent.collide = True
+			agent.collide = False
 			agent.silent = True
 			agent.size = 0.1 #was 0.15
 			agent.prevDistance = None #0.0
@@ -122,7 +122,7 @@ class Scenario(BaseScenario):
 		dist_min = (agent1.size + agent2.size) * 1.5
 		return True if dist < dist_min else False
 
-	
+
 
 
 	def reward(self, agent, world):
@@ -155,7 +155,7 @@ class Scenario(BaseScenario):
 				for o in world.agents:
 					if o.name != agent.name:
 						if self.is_collision(a,o):
-							rew -= 0.001
+							rew -= 0.05
 		
 		if my_dist_from_goal > .1:
 			# add existance penalty
