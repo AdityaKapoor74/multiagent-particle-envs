@@ -12,6 +12,7 @@ class Scenario(BaseScenario):
 		self.num_agents = 16
 		self.num_landmarks = 16
 		self.col_pen = 0.0
+		world.col_pen = self.col_pen
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
