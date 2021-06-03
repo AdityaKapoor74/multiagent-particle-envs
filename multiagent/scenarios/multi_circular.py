@@ -10,8 +10,8 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 4
-		self.num_landmarks = 4
+		self.num_agents = 5
+		self.num_landmarks = 5
 		self.num_circles = 4
 		self.num_agents_per_circle = self.num_agents//self.num_circles # keeping it uniform (try to make it a perfectly divisible)
 		self.radius_circle = {1: 1, 2: 0.4, 3: 0.4, 4: 0.15} #(2/(self.num_circles*2))
@@ -28,7 +28,7 @@ class Scenario(BaseScenario):
 			agent.name = 'agent %d' % i
 			agent.collide = False
 			agent.silent = True
-			agent.size = 0.1 #was 0.15
+			agent.size = 0.07 #was 0.15
 			agent.prevDistance = None
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
@@ -49,9 +49,9 @@ class Scenario(BaseScenario):
 					continue
 				delta_pos = agent.state.p_pos - other_agent.state.p_pos
 				dist = np.sqrt(np.sum(np.square(delta_pos)))
-				dist_min = (agent.size + other_agent.size) * 1.5
+				dist_min = (agent.size + other_agent.size)
 				if dist < dist_min:
-					print("COLLISION")
+					print("COLLISION WHILE SPAWNING")
 					return True 
 
 			return False
@@ -82,9 +82,8 @@ class Scenario(BaseScenario):
 		radius = self.radius_circle[self.num_circles]
 		start_agent_index = 0
 		end_agent_index = self.num_agents_per_circle
-		for center in self.centers[self.num_circles]:
+		for center_index, center in enumerate(self.centers[self.num_circles]):
 			for agent in world.agents[start_agent_index:end_agent_index]:
-				print(agent.name)
 				theta = np.random.uniform(-math.pi, math.pi)
 				x = center[0] + radius*math.cos(theta)
 				y = center[1] + radius*math.sin(theta)
@@ -109,10 +108,14 @@ class Scenario(BaseScenario):
 				agent_list.append(agent)
 
 			start_agent_index += self.num_agents_per_circle
-			if end_agent_index+self.num_agents_per_circle < len(world.agents):
+
+			if (center_index == len(self.centers[self.num_circles]) - 2) and (end_agent_index+self.num_agents_per_circle < len(world.agents)):
+				end_agent_index += len(world.agents) - start_agent_index
+			elif end_agent_index+self.num_agents_per_circle < len(world.agents):
 				end_agent_index += self.num_agents_per_circle
 			else:
-				end_agent_index += len(world.agents) - end_agent_index
+				end_agent_index += len(world.agents) - start_agent_index
+
 
 
 	def benchmark_data(self, agent, world):
