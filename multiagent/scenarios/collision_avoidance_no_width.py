@@ -9,11 +9,13 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 8
-		self.num_landmarks = 8
+		self.num_agents = 16
+		self.num_landmarks = 16
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
+		self.col_pen = .05
+		world.col_pen = self.col_pen
 
 		# add agents
 		world.agents = [Agent() for i in range(self.num_agents)]
@@ -155,7 +157,7 @@ class Scenario(BaseScenario):
 				for o in world.agents:
 					if o.name != agent.name:
 						if self.is_collision(a,o):
-							rew -= 0.05
+							rew -= self.col_pen
 		
 		if my_dist_from_goal > .1:
 			# add existance penalty
