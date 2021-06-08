@@ -181,7 +181,7 @@ class Scenario(BaseScenario):
 				for o in world.agents:
 					if o.name != agent.name:
 						if self.is_collision(a,o):
-							rew -= 0.01
+							rew -= self.col_pen
 
 		# Penalty of existence
 		if agent_dist_from_goal > .1:
