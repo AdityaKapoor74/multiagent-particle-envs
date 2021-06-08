@@ -56,7 +56,7 @@ class Scenario(BaseScenario):
 	def reset_world(self, world):
 		agent_list = []
 		for i in range(self.num_predator+self.num_prey):
-			if "predator" in world.agents[i]:
+			if "predator" in world.agents[i].name:
 				rgb = np.random.uniform(-1,1,3)
 				rgb = np.random.randint(0,255,3)
 				world.agents[i].color = rgb
@@ -71,7 +71,7 @@ class Scenario(BaseScenario):
 			world.agents[i].state.c = np.zeros(world.dim_c)
 			world.agents[i].prevDistance = 0.0
 
-		for i in range(self.num_agents,self.num_agents+self.num_people):
+		for i in range(self.num_predator,self.num_predator+self.num_prey):
 			world.agents[i].color = np.array([0.0,0.0,0.0])
 
 	def benchmark_data(self, agent, world):

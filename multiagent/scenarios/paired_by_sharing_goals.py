@@ -42,7 +42,7 @@ class Scenario(BaseScenario):
 		# print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		# world.collaborative = True
 
-		# # add agents
+		# # add agentsmodels
 		# world.agents = [Agent() for i in range(self.num_agents)]
 		# for i, agent in enumerate(world.agents):
 		# 	agent.name = 'agent %d' % i
@@ -111,7 +111,7 @@ class Scenario(BaseScenario):
 		return True if dist < dist_min else False
 
 
-	def reward_paired_agents(self, agent, world):
+	def reward(self, agent, world):
 		my_index = int(agent.name[-1])
 		paired_agent_index = len(world.agents)-int(agent.name[-1])-1
 
