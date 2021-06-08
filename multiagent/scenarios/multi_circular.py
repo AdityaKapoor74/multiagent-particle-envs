@@ -17,7 +17,7 @@ class Scenario(BaseScenario):
 		self.col_pen = 0.1
 		world.col_pen = self.col_pen
 		print('COL PEN: ', self.col_pen)
-		self.existence_pen = 0.1
+		self.existence_pen = 0.01
 		world.existence_pen = self.existence_pen
 		print('existence PEN: ', self.existence_pen)
 		self.radius_circle = {1: 1, 2: 0.4, 3: 0.4, 4: 0.15} #(2/(self.num_circles*2))
@@ -176,12 +176,12 @@ class Scenario(BaseScenario):
 		# 			rew -=0.01
 
 		# COLLISION REWARD FOR OTHER AGENTS
-		# for a in world.agents:
-		# 	if a.name != agent.name:
-		# 		for o in world.agents:
-		# 			if o.name != agent.name:
-		# 				if self.is_collision(a,o):
-		# 					rew -= 0.01
+		for a in world.agents:
+			if a.name != agent.name:
+				for o in world.agents:
+					if o.name != agent.name:
+						if self.is_collision(a,o):
+							rew -= 0.01
 
 		# Penalty of existence
 		if agent_dist_from_goal > .1:
