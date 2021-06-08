@@ -122,7 +122,7 @@ class Scenario(BaseScenario):
 			return False
 		delta_pos = agent1.state.p_pos - agent2.state.p_pos
 		dist = np.sqrt(np.sum(np.square(delta_pos)))
-		dist_min = (agent1.size + agent2.size) * 1.5
+		dist_min = (agent1.size + agent2.size)
 		return True if dist < dist_min else False
 
 
@@ -138,10 +138,17 @@ class Scenario(BaseScenario):
 			
 		agent.prevDistance = my_dist_from_goal
 
-		Penalty of existence
-		rew -= self.pen_existence
+		collision_count = 0
+		if agent.collide:
+			for other_agent in world.agents:
+				if self.is_collision(agent, other_agent):
+					collision_count += 1
+
+		# Penalty of existence
+		if my_dist_from_goal > 0.1:
+			rew -= self.pen_existence
 		
-		return rew
+		return rew, collision_count
 
 
 	def observation(self, agent, world):

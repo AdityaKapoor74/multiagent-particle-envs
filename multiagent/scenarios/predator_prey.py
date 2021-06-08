@@ -107,9 +107,11 @@ class Scenario(BaseScenario):
 		if "prey" in agent.name:
 			return None
 
+		rew = 0
+
 		if agent.collide:
-			for a in world.agents[self.num_agents:]:
-				if self.is_collision_agent(a, agent):
+			for a in world.agents[self.num_predator:]:
+				if self.is_collision(a, agent):
 					rew += 30.0
 
 		rew += self.penalty_of_existence
