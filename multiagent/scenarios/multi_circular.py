@@ -29,12 +29,14 @@ class Scenario(BaseScenario):
 		world.collaborative = True
 
 		# add agents
+		agent_size = .15
+		world.agent_size = agent_size
 		world.agents = [Agent() for i in range(self.num_agents)]
 		for i, agent in enumerate(world.agents):
 			agent.name = 'agent %d' % i
 			agent.collide = False
 			agent.silent = True
-			agent.size = 0.07 #was 0.15
+			agent.size = agent_size
 			agent.prevDistance = None
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
