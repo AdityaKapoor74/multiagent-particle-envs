@@ -29,7 +29,7 @@ class Scenario(BaseScenario):
 		world.collaborative = True
 
 		# add agents
-		agent_size = .15
+		agent_size = .07
 		world.agent_size = agent_size
 		world.agents = [Agent() for i in range(self.num_agents)]
 		for i, agent in enumerate(world.agents):
