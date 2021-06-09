@@ -1,6 +1,9 @@
 import numpy as np
 from multiagent.core import World, Agent, Landmark
 from multiagent.scenario import BaseScenario
+import webcolors
+import math
+import random
 
 
 class Scenario(BaseScenario):
@@ -8,26 +11,20 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_crossing_agent = 1
-		self.num_crossing_agent_landmark = 1
-		self.other_agents = 4
-		self.other_agents_landmark = 4
-
-		print("NUMBER OF CROSSING AGENTS:",self.num_crossing_agent)
-		print("NUMBER OF CROSSING AGENTS LANDMARKS:",self.num_crossing_agent_landmark)
-
-		print("NUMBER OF OTHER AGENTS:",self.other_agents)
-		print("NUMBER OF OTHER AGENTS LANDMARKS:",self.other_agents_landmark)
+		self.num_agents = 16
+		self.num_landmarks = 16
+		print("NUMBER OF AGENTS:",self.num_agents)
+		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
 
 		# add agents
 		world.agents = [Agent() for i in range(self.num_agents)]
 		for i, agent in enumerate(world.agents):
 			agent.name = 'agent %d' % i
-			agent.collide = True
+			agent.collide = False
 			agent.silent = True
-			agent.size = 0.15 #was 0.15
-			agent.prevDistance = 0.0
+			agent.size = 0.1 #was 0.15
+			agent.prevDistance = None
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
 		for i, landmark in enumerate(world.landmarks):
@@ -38,40 +35,90 @@ class Scenario(BaseScenario):
 		self.reset_world(world)
 		return world
 
+
+	def check_collision_before_spawning(self,agent,landmark,agent_list,landmark_list):
+
+		if agent is not None and agent_list is not None:
+			for other_agent in agent_list:
+				if agent.name == other_agent.name:
+					continue
+				delta_pos = agent.state.p_pos - other_agent.state.p_pos
+				dist = np.sqrt(np.sum(np.square(delta_pos)))
+				dist_min = (agent.size + other_agent.size)
+				if dist < dist_min:
+					return True 
+
+			return False
+
+		elif landmark is not None and landmark_list is not None:
+			for other_landmark in landmark_list:
+				if landmark.name == other_landmark.name:
+					continue
+				delta_pos = landmark.state.p_pos - other_landmark.state.p_pos
+				dist = np.sqrt(np.sum(np.square(delta_pos)))
+				dist_min = (landmark.size + other_landmark.size)
+				if dist < dist_min:
+					return True 
+
+			return False
+
 	def reset_world(self, world):
-
-		base_color = np.array([0.1, 0.1, 0.1])
-
+		agent_list = []
 		for i in range(self.num_agents):
 			rgb = np.random.uniform(-1,1,3)
+			# rgb = np.random.randint(0,255,3)
 			world.agents[i].color = rgb
 			world.landmarks[i].color = rgb
 
+			if i%4 == 0:
+				y = random.uniform(-1,1)
+				x = -1
+				world.agents[i].state.p_pos = np.array([x,y])
+				world.landmarks[i].state.p_pos = np.array([-x,y])
+				while self.check_collision_before_spawning(world.agents[i],None, agent_list,None):
+					y = random.uniform(-1,1)
+					world.agents[i].state.p_pos = np.array([x,y])
+					world.landmarks[i].state.p_pos = np.array([-x,y])
+				world.agents[i].direction = "y"
+			elif i%4 == 1:
+				x = random.uniform(-1,1)
+				y = -1
+				world.agents[i].state.p_pos = np.array([x,y])
+				world.landmarks[i].state.p_pos = np.array([-x,y])
+				while self.check_collision_before_spawning(world.agents[i],None, agent_list,None):
+					x = random.uniform(-1,1)
+					world.agents[i].state.p_pos = np.array([x,y])
+					world.landmarks[i].state.p_pos = np.array([x,-y])
+				world.agents[i].direction = "x"
+			elif i%4 == 2:
+				y = random.uniform(-1,1)
+				x = 1
+				world.agents[i].state.p_pos = np.array([x,y])
+				world.landmarks[i].state.p_pos = np.array([-x,y])
+				while self.check_collision_before_spawning(world.agents[i],None, agent_list,None):
+					y = random.uniform(-1,1)
+					world.agents[i].state.p_pos = np.array([x,y])
+					world.landmarks[i].state.p_pos = np.array([-x,y])
+				world.agents[i].direction = "-y"
+			elif i%4 == 3:
+				x = random.uniform(-1,1)
+				y = 1
+				world.agents[i].state.p_pos = np.array([x,y])
+				world.landmarks[i].state.p_pos = np.array([-x,y])
+				while self.check_collision_before_spawning(world.agents[i],None, agent_list,None):
+					x = random.uniform(-1,1)
+					world.agents[i].state.p_pos = np.array([x,y])
+					world.landmarks[i].state.p_pos = np.array([x,-y])
+				world.agents[i].direction = "-x"
 
-		# set random initial states
-		for i, agent in enumerate(world.agents):
-			if i == 0:
-				agent.state.p_pos = np.array([-0.15,-0.85])
-			elif i== 3:
-				agent.state.p_pos = np.array([-0.85,-0.85])
-			elif i== 1:
-				agent.state.p_pos = np.array([0.15,-0.85])
-			elif i== 2:
-				agent.state.p_pos = np.array([0.85,-0.85])
+			agent_list.append(world.agents[i])
 
-			agent.state.p_vel = np.zeros(world.dim_p)
-			agent.state.c = np.zeros(world.dim_c)
-			agent.prevDistance = 0.0
+			world.agents[i].state.p_vel = np.zeros(world.dim_p)
+			world.agents[i].state.c = np.zeros(world.dim_c)
+			world.agents[i].prevDistance = None
+			world.landmarks[i].state.p_vel = np.zeros(world.dim_p)
 
-		for i, landmark in enumerate(world.landmarks):
-			if i == 0:
-				landmark.state.p_pos = np.array([-0.85,0.85])
-			elif i== 3:
-				landmark.state.p_pos = np.array([-0.15,0.85])
-			elif i== 1:
-				landmark.state.p_pos = np.array([0.85,0.85])
-			elif i== 2:
-				landmark.state.p_pos = np.array([0.15,0.85])
+
 
 	def benchmark_data(self, agent, world):
 		rew = 0
@@ -106,39 +153,55 @@ class Scenario(BaseScenario):
 		
 		agent_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
 
-		rew = agent.prevDistance - agent_dist_from_goal
+		if agent.prevDistance is None:
+			rew = 0
+		else:
+			rew = agent.prevDistance - agent_dist_from_goal
+
 		agent.prevDistance = agent_dist_from_goal
 
-		if world.agents[my_index].collide:
-			for a in world.agents:
-				if self.is_collision(a, world.agents[my_index]):
-					rew -= 0.1
+		# if world.agents[my_index].collide:
+		# 	for a in world.agents:
+		# 		if self.is_collision(a, world.agents[my_index]):
+		# 			rew -= 0.01
+
+		# # SHARED COLLISION REWARD
+		# for a in world.agents:
+		# 	for o in world.agents:
+		# 		if self.is_collision(a,o):
+		# 			rew -=0.01
+
+		# COLLISION REWARD FOR OTHER AGENTS
+		# for a in world.agents:
+		# 	if a.name != agent.name:
+		# 		for o in world.agents:
+		# 			if o.name != agent.name:
+		# 				if self.is_collision(a,o):
+		# 					rew -= 0.01
+
+		# Penalty of existence
+		# if agent_dist_from_goal < 0.1:
+		# 	rew -= self.pen_existence
+
+		collision_count = 0
+		if agent.collide:
+			for other_agent in world.agents:
+				if self.is_collision(agent, other_agent):
+					collision_count += 1
 		
-		return rew
+		return rew, collision_count
 
 
 	def observation(self, agent, world):
-
 		curr_agent_index = world.agents.index(agent)
-
 		current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
-		
-		
 		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
-		other_agents_actor = []
-
-		for other_agent in world.agents:
-			if other_agent is agent:
-			  continue
-			other_agents_actor.append(other_agent.state.p_pos-agent.state.p_pos)
-			other_agents_actor.append(other_agent.state.p_vel-agent.state.p_vel)
-
-		return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor+other_agents_actor)
+		return np.concatenate(current_agent_critic), np.concatenate(current_agent_actor)
 
 
 	def isFinished(self,agent,world):
-		index = int(agent.name[-1])
-		dist = np.sqrt(np.sum(np.square(world.agents[index].state.p_pos - world.landmarks[index].state.p_pos)))
+		index = world.agents.index(agent)
+		dist = np.sqrt(np.sum(np.square(agent.state.p_pos - world.landmarks[index].state.p_pos)))
 		if dist<0.1:
 			return True
 		return False

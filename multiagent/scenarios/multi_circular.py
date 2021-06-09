@@ -178,7 +178,8 @@ class Scenario(BaseScenario):
 		# 					rew -= 0.01
 
 		# Penalty of existence
-		# rew -= self.pen_existence
+		# if agent_dist_from_goal < 0.1:
+		# 	rew -= self.pen_existence
 		
 		return rew
 
