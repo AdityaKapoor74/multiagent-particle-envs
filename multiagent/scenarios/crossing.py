@@ -66,7 +66,6 @@ class Scenario(BaseScenario):
 		agent_list = []
 		for i in range(self.num_agents):
 			rgb = np.random.uniform(-1,1,3)
-			# rgb = np.random.randint(0,255,3)
 			world.agents[i].color = rgb
 			world.landmarks[i].color = rgb
 
@@ -84,7 +83,7 @@ class Scenario(BaseScenario):
 				x = random.uniform(-1,1)
 				y = -1
 				world.agents[i].state.p_pos = np.array([x,y])
-				world.landmarks[i].state.p_pos = np.array([-x,y])
+				world.landmarks[i].state.p_pos = np.array([x,-y])
 				while self.check_collision_before_spawning(world.agents[i],None, agent_list,None):
 					x = random.uniform(-1,1)
 					world.agents[i].state.p_pos = np.array([x,y])
@@ -104,7 +103,7 @@ class Scenario(BaseScenario):
 				x = random.uniform(-1,1)
 				y = 1
 				world.agents[i].state.p_pos = np.array([x,y])
-				world.landmarks[i].state.p_pos = np.array([-x,y])
+				world.landmarks[i].state.p_pos = np.array([x,-y])
 				while self.check_collision_before_spawning(world.agents[i],None, agent_list,None):
 					x = random.uniform(-1,1)
 					world.agents[i].state.p_pos = np.array([x,y])
