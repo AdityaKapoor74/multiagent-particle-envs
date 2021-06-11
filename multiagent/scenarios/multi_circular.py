@@ -10,14 +10,14 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 6
-		self.num_landmarks = 6
-		self.num_circles = 3
+		self.num_agents = 4
+		self.num_landmarks = 4
+		self.num_circles = 2
 		self.num_agents_per_circle = self.num_agents//self.num_circles # keeping it uniform (try to make it a perfectly divisible)
-		self.col_pen = 0.1
+		self.col_pen = 0.05
 		world.col_pen = self.col_pen
 		print('COL PEN: ', self.col_pen)
-		self.existence_pen = 0.01
+		self.existence_pen = 0.0 #0.01
 		world.existence_pen = self.existence_pen
 		print('existence PEN: ', self.existence_pen)
 		self.radius_circle = {1: 1, 2: 0.4, 3: 0.4, 4: 0.15} #(2/(self.num_circles*2))
@@ -29,13 +29,18 @@ class Scenario(BaseScenario):
 		world.collaborative = True
 
 		# add agents
-		agent_size = .07
+		agent_size = .15
 		world.agent_size = agent_size
 		world.agents = [Agent() for i in range(self.num_agents)]
 		for i, agent in enumerate(world.agents):
 			agent.name = 'agent %d' % i
 			agent.collide = False
 			agent.silent = True
+
+
+
+
+
 			agent.size = agent_size
 			agent.prevDistance = None
 		# add landmarks
@@ -155,7 +160,13 @@ class Scenario(BaseScenario):
 
 
 	def reward(self, agent, world):
+
 		my_index = int(agent.name[-1])
+
+		# if world.agents[my_index].name == 0:
+		# 	print('**************************************************************************************')
+		# print('========================================')
+
 		
 		agent_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
 
@@ -167,9 +178,10 @@ class Scenario(BaseScenario):
 		agent.prevDistance = agent_dist_from_goal
 
 		# if world.agents[my_index].collide:
-		# 	for a in world.agents:
-		# 		if self.is_collision(a, world.agents[my_index]):
-		# 			rew -= 0.01
+		for a in world.agents:
+			if self.is_collision(a, world.agents[my_index]):
+				rew -= self.col_pen
+		# assert False
 
 		# # SHARED COLLISION REWARD
 		# for a in world.agents:
@@ -177,13 +189,14 @@ class Scenario(BaseScenario):
 		# 		if self.is_collision(a,o):
 		# 			rew -=0.01
 
-		# COLLISION REWARD FOR OTHER AGENTS
+		## COLLISION REWARD FOR OTHER AGENTS
 		for a in world.agents:
 			if a.name != agent.name:
 				for o in world.agents:
 					if o.name != agent.name:
 						if self.is_collision(a,o):
-							rew -= self.col_pen
+							# print(str(a.name) +' in collision with '+str(o.name)+'   would add pen to '+str(world.agents[my_index].name))
+							rew -= self.col_pen/2 # divide by 2 so as not to overcount collisions
 
 		# Penalty of existence
 		if agent_dist_from_goal > .1:
