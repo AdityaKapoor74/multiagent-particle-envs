@@ -14,7 +14,7 @@ class Scenario(BaseScenario):
 		self.num_landmarks = 4
 		self.num_circles = 2
 		self.num_agents_per_circle = self.num_agents//self.num_circles # keeping it uniform (try to make it a perfectly divisible)
-		self.col_pen = 0.05
+		self.col_pen = 0.1
 		world.col_pen = self.col_pen
 		print('COL PEN: ', self.col_pen)
 		self.existence_pen = 0.0 #0.01
@@ -177,10 +177,10 @@ class Scenario(BaseScenario):
 
 		agent.prevDistance = agent_dist_from_goal
 
-		# if world.agents[my_index].collide:
-		for a in world.agents:
-			if self.is_collision(a, world.agents[my_index]):
-				rew -= self.col_pen
+		# # if world.agents[my_index].collide:
+		# for a in world.agents:
+		# 	if self.is_collision(a, world.agents[my_index]):
+		# 		rew -= self.col_pen
 		# assert False
 
 		# # SHARED COLLISION REWARD
