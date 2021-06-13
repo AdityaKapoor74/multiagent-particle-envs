@@ -10,9 +10,9 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_predator = 1
-		self.num_prey = 1
-		self.penalty_of_existence = -0.01
+		self.num_predator = 4
+		self.num_prey = 3
+		self.penalty_of_existence = 0.01
 		print("NUMBER OF PREDATORS:",self.num_predator)
 		print("NUMBER OF PREYS:",self.num_prey)
 		world.collaborative = True
@@ -21,20 +21,19 @@ class Scenario(BaseScenario):
 		world.agents = [Agent() for i in range(self.num_predator)]
 		for i, predator in enumerate(world.agents):
 			predator.name = 'predator %d' % i
-			predator.collide = True
+			predator.collide = False
 			predator.silent = True
 			predator.size = 0.1 #was 0.15
-			predator.prevDistance = 0.0
 
 		# add prey
 		for i in range(self.num_prey):
 			world.agents.append(Agent())
 		for i, prey in enumerate(world.agents[self.num_predator:]):
 			prey.name = 'prey %d' % i
-			prey.collide = False
+			prey.collide = True
 			prey.silent = True
-			prey.size = 0.1 #was 0.15
-			prey.prevDistance = 0.0
+			prey.size = 0.05 #was 0.15
+			prey.captured = 0
 
 		# make initial conditions
 		self.reset_world(world)
@@ -58,7 +57,6 @@ class Scenario(BaseScenario):
 		for i in range(self.num_predator+self.num_prey):
 			if "predator" in world.agents[i].name:
 				rgb = np.random.uniform(-1,1,3)
-				rgb = np.random.randint(0,255,3)
 				world.agents[i].color = rgb
 			else:
 				world.agents[i].color = np.array([0.0,0.0,0.0])
@@ -70,9 +68,6 @@ class Scenario(BaseScenario):
 			world.agents[i].state.p_vel = np.zeros(world.dim_p)
 			world.agents[i].state.c = np.zeros(world.dim_c)
 			world.agents[i].prevDistance = 0.0
-
-		for i in range(self.num_predator,self.num_predator+self.num_prey):
-			world.agents[i].color = np.array([0.0,0.0,0.0])
 
 	def benchmark_data(self, agent, world):
 		rew = 0
@@ -93,12 +88,13 @@ class Scenario(BaseScenario):
 		return (rew, collisions, min_dists, occupied_landmarks)
 
 
+
 	def is_collision(self, agent1, agent2):
 		if agent1.name == agent2.name:
 			return False
 		delta_pos = agent1.state.p_pos - agent2.state.p_pos
 		dist = np.sqrt(np.sum(np.square(delta_pos)))
-		dist_min = (agent1.size + agent2.size) * 1.5
+		dist_min = (agent1.size + agent2.size)
 		return True if dist < dist_min else False
 
 
@@ -109,17 +105,32 @@ class Scenario(BaseScenario):
 
 		rew = 0
 
-		if agent.collide:
-			for a in world.agents[self.num_predator:]:
-				if self.is_collision(a, agent):
-					rew += 30.0
+		for a in world.agents[self.num_predator:]:
+			if self.is_collision(a, agent):
+				# if you get to the prey you get something
+				rew += 0.5
+				for predator in world.agents[:self.num_predator]:
+					if predator.name == agent.name:
+						continue
+					if self.is_collision(a,predator):
+						# if two predators get to the prey, they get a higher reward
+						rew += 1.0
 
-		rew += self.penalty_of_existence
+		rew -= self.penalty_of_existence
 		
 		return rew
 
 
 	def observation(self, agent, world):
+
+		if agent.state.p_pos[0]>1:
+			agent.state.p_pos[0] = 1
+		elif agent.state.p_pos[0]<-1:
+			agent.state.p_pos[0] = -1
+		elif agent.state.p_pos[1]>1:
+			agent.state.p_pos[1] = 1
+		elif agent.state.p_pos[1]<-1:
+			agent.state.p_pos[1] = -1
 
 		if "predator" in agent.name:
 			curr_agent_index = world.agents.index(agent)

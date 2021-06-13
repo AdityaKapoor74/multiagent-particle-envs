@@ -74,6 +74,8 @@ class Agent(Entity):
         self.u_range = 1.0
         # prevDistance from goal
         self.prevDistance = 0.0
+        # captured
+        self.captured = 0
         # firection to move
         self.direction = ""
         # agent team num
@@ -174,11 +176,13 @@ class World(object):
                     entity.state.p_vel = entity.state.p_vel / np.sqrt(np.square(entity.state.p_vel[0]) +
                                                                   np.square(entity.state.p_vel[1])) * entity.max_speed
             
-            if "prey" in entity.name or "predator" in entity.name:
-                if (entity.state.p_pos[0] + entity.state.p_vel[0] * self.dt > 1.0) or (entity.state.p_pos[0] + entity.state.p_vel[0] * self.dt < -1.0) or (entity.state.p_pos[1] + entity.state.p_vel[1] * self.dt > 1.0) or (entity.state.p_pos[1] + entity.state.p_vel[1] * self.dt < -1.0):
-                    entity.state.p_pos = entity.state.p_pos
-            else:
-                entity.state.p_pos += entity.state.p_vel * self.dt
+            # if "prey" in entity.name or "predator" in entity.name:
+            #     if (entity.state.p_pos[0] + entity.state.p_vel[0] * self.dt > 1.0) or (entity.state.p_pos[0] + entity.state.p_vel[0] * self.dt < -1.0) or (entity.state.p_pos[1] + entity.state.p_vel[1] * self.dt > 1.0) or (entity.state.p_pos[1] + entity.state.p_vel[1] * self.dt < -1.0):
+            #         entity.state.p_pos = entity.state.p_pos
+            # else:
+            #     entity.state.p_pos += entity.state.p_vel * self.dt
+            entity.state.p_pos += entity.state.p_vel * self.dt
+
 
     def update_agent_state(self, agent):
         # set communication state (directly for now)
