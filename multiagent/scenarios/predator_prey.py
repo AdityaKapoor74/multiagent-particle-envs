@@ -108,13 +108,13 @@ class Scenario(BaseScenario):
 		for a in world.agents[self.num_predator:]:
 			if self.is_collision(a, agent):
 				# if you get to the prey you get something
-				rew += 0.5
+				rew += 0.1
 				for predator in world.agents[:self.num_predator]:
 					if predator.name == agent.name:
 						continue
 					if self.is_collision(a,predator):
 						# if two predators get to the prey, they get a higher reward
-						rew += 5.0
+						rew += 1.0
 
 		rew -= self.penalty_of_existence
 		
