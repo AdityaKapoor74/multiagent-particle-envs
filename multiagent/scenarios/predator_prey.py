@@ -114,7 +114,7 @@ class Scenario(BaseScenario):
 						continue
 					if self.is_collision(a,predator):
 						# if two predators get to the prey, they get a higher reward
-						rew += 1.0
+						rew += 5.0
 
 		rew -= self.penalty_of_existence
 		
