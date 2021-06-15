@@ -1,7 +1,7 @@
 import numpy as np
 from multiagent.core import World, Agent, Landmark
 from multiagent.scenario import BaseScenario
-import webcolors
+# import webcolors
 import math
 
 
@@ -14,6 +14,12 @@ class Scenario(BaseScenario):
 		self.num_landmarks = 4
 		self.num_circles = 2
 		self.num_agents_per_circle = self.num_agents//self.num_circles # keeping it uniform (try to make it a perfectly divisible)
+		self.col_pen = 0.1
+		world.col_pen = self.col_pen
+		print('COL PEN: ', self.col_pen)
+		self.existence_pen = 0.0 #0.01
+		world.existence_pen = self.existence_pen
+		print('existence PEN: ', self.existence_pen)
 		self.radius_circle = {1: 1, 2: 0.4, 3: 0.4, 4: 0.15} #(2/(self.num_circles*2))
 		self.centers = {1: [(0.0,0.0)], 2:[(-0.5,0.0), (0.5,0.0)], 3:[(-0.5,-0.5), (0.5,-0.5), (0.0,0.5)], 4:[(-0.5,-0.5), (-0.5,0.5), (0.5, -0.5), (0.5, 0.5)]}#[(-0.5,0.0), (0.5,0.0)]
 		print("NUMBER OF AGENTS:",self.num_agents)
@@ -22,14 +28,19 @@ class Scenario(BaseScenario):
 		print("NUMBER OF AGENTS PER CIRCLE:", self.num_agents_per_circle)
 		world.collaborative = True
 
+
 		# add agents
+		agent_size = .15
+		world.agent_size = agent_size
 		world.agents = [Agent() for i in range(self.num_agents)]
 		for i, agent in enumerate(world.agents):
 			agent.name = 'agent %d' % i
 			agent.collide = False
 			agent.silent = True
-			agent.size = 0.07 #was 0.15
+			agent.size = agent_size
 			agent.prevDistance = None
+
+
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
 		for i, landmark in enumerate(world.landmarks):
@@ -103,7 +114,7 @@ class Scenario(BaseScenario):
 
 				agent.state.p_vel = np.zeros(world.dim_p)
 				agent.state.c = np.zeros(world.dim_c)
-				agent.prevDistance = 0.0
+				agent.prevDistance = None
 
 				agent_list.append(agent)
 
@@ -147,7 +158,13 @@ class Scenario(BaseScenario):
 
 
 	def reward(self, agent, world):
+
 		my_index = int(agent.name[-1])
+
+		# if world.agents[my_index].name == 0:
+		# 	print('**************************************************************************************')
+		# print('========================================')
+
 		
 		agent_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
 
@@ -158,10 +175,11 @@ class Scenario(BaseScenario):
 
 		agent.prevDistance = agent_dist_from_goal
 
-		# if world.agents[my_index].collide:
-		# 	for a in world.agents:
-		# 		if self.is_collision(a, world.agents[my_index]):
-		# 			rew -= 0.01
+		# # if world.agents[my_index].collide:
+		# for a in world.agents:
+		# 	if self.is_collision(a, world.agents[my_index]):
+		# 		rew -= self.col_pen
+		# assert False
 
 		# # SHARED COLLISION REWARD
 		# for a in world.agents:
@@ -169,30 +187,26 @@ class Scenario(BaseScenario):
 		# 		if self.is_collision(a,o):
 		# 			rew -=0.01
 
-		# COLLISION REWARD FOR OTHER AGENTS
-		# for a in world.agents:
-		# 	if a.name != agent.name:
-		# 		for o in world.agents:
-		# 			if o.name != agent.name:
-		# 				if self.is_collision(a,o):
-		# 					rew -= 0.01
+		## COLLISION REWARD FOR OTHER AGENTS
+		for a in world.agents:
+			if a.name != agent.name:
+				for o in world.agents:
+					if o.name != agent.name:
+						if self.is_collision(a,o):
+							# print(str(a.name) +' in collision with '+str(o.name)+'   would add pen to '+str(world.agents[my_index].name))
+							rew -= self.col_pen/2 # divide by 2 so as not to overcount collisions
 
 		# Penalty of existence
-		# if agent_dist_from_goal < 0.1:
-		# 	rew -= self.pen_existence
+		if agent_dist_from_goal > .1:
+			rew -= self.existence_pen
 		
 		return rew
 
 
 	def observation(self, agent, world):
-
 		curr_agent_index = world.agents.index(agent)
-
 		current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
-		
-		
 		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
-
 		return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor)
 
 
@@ -202,4 +216,3 @@ class Scenario(BaseScenario):
 		if dist<0.1:
 			return True
 		return False
-		
