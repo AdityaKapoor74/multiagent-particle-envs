@@ -1,7 +1,7 @@
 import numpy as np
 from multiagent.core import World, Agent, Landmark
 from multiagent.scenario import BaseScenario
-import webcolors
+# import webcolors
 import math
 import random
 
@@ -183,7 +183,7 @@ class Scenario(BaseScenario):
 						if self.is_collision(a,o):
 							rew -= self.pen_collision/2 # divide by 2 so as not to overcount collisions
 
-		Penalty of existence
+		# Penalty of existence
 		if agent_dist_from_goal > 0.1:
 			rew -= self.pen_existence
 
@@ -192,7 +192,7 @@ class Scenario(BaseScenario):
 			if self.is_collision(agent, other_agent):
 				collision_count += 1
 		
-		return rew, collision_count
+		return rew #, collision_count
 
 
 	def observation(self, agent, world):
