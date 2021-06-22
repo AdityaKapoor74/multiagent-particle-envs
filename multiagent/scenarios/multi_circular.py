@@ -28,7 +28,6 @@ class Scenario(BaseScenario):
 		print("NUMBER OF AGENTS PER CIRCLE:", self.num_agents_per_circle)
 		world.collaborative = True
 
-
 		# add agents
 		agent_size = .15
 		world.agent_size = agent_size
@@ -37,10 +36,13 @@ class Scenario(BaseScenario):
 			agent.name = 'agent %d' % i
 			agent.collide = False
 			agent.silent = True
+
+
+
+
+
 			agent.size = agent_size
 			agent.prevDistance = None
-
-
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
 		for i, landmark in enumerate(world.landmarks):
@@ -204,9 +206,14 @@ class Scenario(BaseScenario):
 
 
 	def observation(self, agent, world):
+
 		curr_agent_index = world.agents.index(agent)
+
 		current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
+		
+		
 		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
+
 		return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor)
 
 
