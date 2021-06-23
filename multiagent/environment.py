@@ -216,15 +216,15 @@ class MultiAgentEnv(gym.Env):
                     if action[0] == 4: agent.action.u[1] = +1.3
 
                 else:
-                    if action[0] == 1: agent.action.u[0] = -1.0
-                    if action[0] == 2: agent.action.u[0] = +1.0
-                    if action[0] == 3: agent.action.u[1] = -1.0
-                    if action[0] == 4: agent.action.u[1] = +1.0
+                    # if action[0] == 1: agent.action.u[0] = -1.0
+                    # if action[0] == 2: agent.action.u[0] = +1.0
+                    # if action[0] == 3: agent.action.u[1] = -1.0
+                    # if action[0] == 4: agent.action.u[1] = +1.0
                     # SLOW DOWN AGENTS
-                    # if action[0] == 1: agent.action.u[0] = -0.1
-                    # if action[0] == 2: agent.action.u[0] = +0.1
-                    # if action[0] == 3: agent.action.u[1] = -0.1
-                    # if action[0] == 4: agent.action.u[1] = +0.1
+                    if action[0] == 1: agent.action.u[0] = -0.1
+                    if action[0] == 2: agent.action.u[0] = +0.1
+                    if action[0] == 3: agent.action.u[1] = -0.1
+                    if action[0] == 4: agent.action.u[1] = +0.1
 
             else:
                 if self.force_discrete_action:
