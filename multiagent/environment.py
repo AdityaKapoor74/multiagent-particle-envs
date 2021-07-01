@@ -215,6 +215,16 @@ class MultiAgentEnv(gym.Env):
                     if action[0] == 3: agent.action.u[1] = -1.3
                     if action[0] == 4: agent.action.u[1] = +1.3
 
+                elif "fast" in agent.name:
+                    if action[0] == 1: agent.action.u[0] = -1.0
+                    if action[0] == 2: agent.action.u[0] = +1.0
+                    if action[0] == 3: agent.action.u[1] = -1.0
+                    if action[0] == 4: agent.action.u[1] = +1.0
+                elif "slow" in agent.name:
+                    if action[0] == 1: agent.action.u[0] = -0.4
+                    if action[0] == 2: agent.action.u[0] = +0.4
+                    if action[0] == 3: agent.action.u[1] = -0.4
+                    if action[0] == 4: agent.action.u[1] = +0.4
                 else:
                     if action[0] == 1: agent.action.u[0] = -1.0
                     if action[0] == 2: agent.action.u[0] = +1.0

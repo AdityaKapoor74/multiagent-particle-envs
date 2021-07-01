@@ -31,7 +31,11 @@ class Scenario(BaseScenario):
 		# add agents
 		world.agents = [Agent() for i in range(self.num_agents)]
 		for i, agent in enumerate(world.agents):
-			agent.name = 'agent %d' % i
+			# agent.name = 'agent %d' % i
+			if i%2 == 0:
+				agent.name = 'fast_agent %d' % i
+			else:
+				agent.name = 'slow_agent %d' % i
 			agent.collide = False
 			agent.silent = True
 			agent.size = 0.1 #was 0.15
