@@ -9,8 +9,8 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 4
-		self.num_landmarks = 4
+		self.num_agents = 8
+		self.num_landmarks = 8
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
@@ -31,11 +31,11 @@ class Scenario(BaseScenario):
 		# add agents
 		world.agents = [Agent() for i in range(self.num_agents)]
 		for i, agent in enumerate(world.agents):
-			# agent.name = 'agent %d' % i
-			if i%2 == 0:
-				agent.name = 'fast_agent %d' % i
-			else:
-				agent.name = 'slow_agent %d' % i
+			agent.name = 'agent %d' % i
+			# if i%2 == 0:
+			# 	agent.name = 'fast_agent %d' % i
+			# else:
+			# 	agent.name = 'slow_agent %d' % i
 			agent.collide = False
 			agent.silent = True
 			agent.size = 0.1 #was 0.15
@@ -179,33 +179,53 @@ class Scenario(BaseScenario):
 		# 				if self.is_collision(a,o):
 		# 					rew -= self.col_pen
 		
-		if my_dist_from_goal > .1:
-			# add existance penalty
-			rew += -0.01
+		# if my_dist_from_goal > .1:
+		# 	# add existance penalty
+		# 	rew += -0.01
 
 
 		partner_index = self.teams[my_index]
 		# if agent i reaches before agent i+1, both get +1 on completion and if agent i+1 reaches before agent i, both get +2
 		if self.time_on_goal[my_index] != float('inf') and self.time_on_goal[partner_index] != float('inf'): # current agent reached its goal
 			if my_index == 0 and self.time_on_goal[partner_index] < self.time_on_goal[my_index]:
-				rew+=2
+				rew+=5
 			elif my_index == 0 and self.time_on_goal[partner_index] >= self.time_on_goal[my_index]:
 				rew+=1
 
 			elif my_index == 1 and self.time_on_goal[partner_index] < self.time_on_goal[my_index]:
 				rew+=1
 			elif my_index == 1 and self.time_on_goal[partner_index] >= self.time_on_goal[my_index]:
-				rew+=2
+				rew+=5
 
 			elif my_index == 2 and self.time_on_goal[partner_index] < self.time_on_goal[my_index]:
-				rew+=2
+				rew+=5
 			elif my_index == 2 and self.time_on_goal[partner_index] >= self.time_on_goal[my_index]:
 				rew+=1
 
 			elif my_index == 3 and self.time_on_goal[partner_index] < self.time_on_goal[my_index]:
 				rew+=1
 			elif my_index == 3 and self.time_on_goal[partner_index] >= self.time_on_goal[my_index]:
-				rew+=2
+				rew+=5
+
+			elif my_index == 4 and self.time_on_goal[partner_index] < self.time_on_goal[my_index]:
+				rew+=5
+			elif my_index == 4 and self.time_on_goal[partner_index] >= self.time_on_goal[my_index]:
+				rew+=1
+
+			elif my_index == 5 and self.time_on_goal[partner_index] < self.time_on_goal[my_index]:
+				rew+=1
+			elif my_index == 5 and self.time_on_goal[partner_index] >= self.time_on_goal[my_index]:
+				rew+=10
+
+			elif my_index == 6 and self.time_on_goal[partner_index] < self.time_on_goal[my_index]:
+				rew+=5
+			elif my_index == 6 and self.time_on_goal[partner_index] >= self.time_on_goal[my_index]:
+				rew+=1
+
+			elif my_index == 7 and self.time_on_goal[partner_index] < self.time_on_goal[my_index]:
+				rew+=1
+			elif my_index == 7 and self.time_on_goal[partner_index] >= self.time_on_goal[my_index]:
+				rew+=5
 
 
 		# increment time when last agent's rewards are processed
