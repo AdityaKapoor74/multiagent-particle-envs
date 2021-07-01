@@ -23,7 +23,7 @@ class Scenario(BaseScenario):
 			agent.name = 'agent %d' % i
 			agent.collide = False
 			agent.silent = True
-			agent.size = 0.1 #was 0.15
+			agent.size = 0.05 #was 0.15
 			agent.prevDistance = None #0.0
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
