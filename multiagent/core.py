@@ -55,6 +55,8 @@ class Landmark(Entity):
      def __init__(self):
         super(Landmark, self).__init__()
         self.team_id = None
+        # for cooperative push ball
+        self.goal_p = None
 
 # properties of agent entities
 class Agent(Entity):

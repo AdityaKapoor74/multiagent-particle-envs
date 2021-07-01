@@ -29,20 +29,16 @@ class Scenario(BaseScenario):
 		world.collaborative = True
 
 		# add agents
-		agent_size = .15
+		agent_size = .1
 		world.agent_size = agent_size
 		world.agents = [Agent() for i in range(self.num_agents)]
 		for i, agent in enumerate(world.agents):
 			agent.name = 'agent %d' % i
 			agent.collide = False
 			agent.silent = True
-
-
-
-
-
 			agent.size = agent_size
 			agent.prevDistance = None
+
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
 		for i, landmark in enumerate(world.landmarks):
@@ -166,8 +162,6 @@ class Scenario(BaseScenario):
 		# if world.agents[my_index].name == 0:
 		# 	print('**************************************************************************************')
 		# print('========================================')
-
-		
 		agent_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
 
 		if agent.prevDistance is None:
@@ -177,17 +171,16 @@ class Scenario(BaseScenario):
 
 		agent.prevDistance = agent_dist_from_goal
 
-		# # if world.agents[my_index].collide:
-		for a in world.agents:
-			if self.is_collision(a, agent):
-				rew -= self.col_pen
+		# for a in world.agents:
+		# 	if self.is_collision(a, agent):
+		# 		rew -= self.col_pen
 		# assert False
 
 		# # SHARED COLLISION REWARD
-		# for a in world.agents:
-		# 	for o in world.agents:
-		# 		if self.is_collision(a,o):
-		# 			rew -=0.01
+		for a in world.agents:
+			for o in world.agents:
+				if self.is_collision(a,o):
+					rew -=0.01
 
 		## COLLISION REWARD FOR OTHER AGENTS
 		# for a in world.agents:
@@ -201,6 +194,9 @@ class Scenario(BaseScenario):
 		# Penalty of existence
 		if agent_dist_from_goal > .1:
 			rew -= self.existence_pen
+
+		# if agent 0 reaches before agent 1 both get +1, else +2; similarly for other agents
+
 		
 		return rew
 
