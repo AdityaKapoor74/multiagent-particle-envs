@@ -175,9 +175,11 @@ class Scenario(BaseScenario):
 		# 				if self.is_collision(a,o):
 		# 					rew -= self.col_pen
 		
-		# if my_dist_from_goal > .1:
-		# 	# add existance penalty
-		# 	rew += -0.01
+		if my_dist_from_goal > .1:
+			# add existance penalty
+			rew += -0.01
+
+
 		partner_index = self.teams[my_index]
 		# if agent i reaches before agent i+1, both get +1 on completion and if agent i+1 reaches before agent i, both get +2
 		if self.time_on_goal[my_index] != float('inf') and self.time_on_goal[partner_index] != float('inf'): # current agent reached its goal
