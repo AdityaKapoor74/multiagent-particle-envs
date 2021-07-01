@@ -1,7 +1,7 @@
 import numpy as np
 from multiagent.core import World, Agent, Landmark
 from multiagent.scenario import BaseScenario
-import webcolors
+# import webcolors
 
 
 class Scenario(BaseScenario):
@@ -14,18 +14,17 @@ class Scenario(BaseScenario):
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
-
-		self.pen_existence = 0.01
+		self.col_pen = .1
+		world.col_pen = self.col_pen
 
 		# add agents
 		world.agents = [Agent() for i in range(self.num_agents)]
 		for i, agent in enumerate(world.agents):
 			agent.name = 'agent %d' % i
-			agent.collide = True
-			agent.movable = True
+			agent.collide = False
 			agent.silent = True
 			agent.size = 0.1 #was 0.15
-			agent.prevDistance = 0.0
+			agent.prevDistance = None #0.0
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
 		for i, landmark in enumerate(world.landmarks):
@@ -63,16 +62,16 @@ class Scenario(BaseScenario):
 			return False
 
 	def reset_world(self, world):
-		color_choice = [np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([0,0,0]), np.array([128,0,0]), np.array([0,128,0]), np.array([0,0,128]), np.array([128,128,128]), np.array([128,0,128]), np.array([128,128,0])]
+		color_choice = 2*[np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([0,0,0]), np.array([128,0,0]), np.array([0,128,0]), np.array([0,0,128]), np.array([128,128,128]), np.array([128,0,128]), np.array([128,128,0])]
 
 		for i in range(self.num_agents):
-			rgb = np.random.uniform(-1,1,3)
+			# rgb = np.random.uniform(-1,1,3)
 			# rgb = np.random.randint(0,255,3)
 			# print(rgb)
-			world.agents[i].color = rgb
-			world.landmarks[i].color = rgb
-			# world.agents[i].color = color_choice[i]
-			# world.landmarks[i].color = color_choice[i]
+			# world.agents[i].color = rgb
+			# world.landmarks[i].color = rgb
+			world.agents[i].color = color_choice[i]
+			world.landmarks[i].color = color_choice[i]
 			# print("AGENT", world.agents[i].name[-1], ":", webcolors.rgb_to_name((color_choice[i][0],color_choice[i][1],color_choice[i][2])))
 
 		agent_list = []
@@ -85,7 +84,7 @@ class Scenario(BaseScenario):
 
 			agent.state.p_vel = np.zeros(world.dim_p)
 			agent.state.c = np.zeros(world.dim_c)
-			agent.prevDistance = None
+			agent.prevDistance = None # 0.0
 			agent_list.append(agent)
 
 		landmark_list = []
@@ -126,22 +125,25 @@ class Scenario(BaseScenario):
 		return True if dist < dist_min else False
 
 
+
+
 	def reward(self, agent, world):
 		my_index = int(agent.name[-1])
 
 		my_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
 
-		if agent.prevDistance is None:
-			rew = 0
-		else:
+		
+		if agent.prevDistance is not None:
 			rew = agent.prevDistance - my_dist_from_goal
-			
+		else:
+			rew = 0.0
+
 		agent.prevDistance = my_dist_from_goal
 
 		# if agent.collide:
-		# 	for a in world.agents:
-		# 		if self.is_collision(a, agent):
-		# 			rew -= 0.1
+		for a in world.agents:
+			if self.is_collision(a, agent):
+				rew -= self.col_pen
 
 		# # SHARED COLLISION REWARD
 		# for a in world.agents:
@@ -150,16 +152,18 @@ class Scenario(BaseScenario):
 		# 			rew -=0.1/self.num_agents
 
 		# COLLISION REWARD FOR OTHER AGENTS
-		for a in world.agents:
-			if a.name != agent.name:
-				for o in world.agents:
-					if o.name != agent.name:
-						if self.is_collision(a,o):
-							rew -= 0.01
-
-		# Penalty of existence
-		# rew -= self.pen_existence
+		# for a in world.agents:
+		# 	if a.name != agent.name:
+		# 		for o in world.agents:
+		# 			if o.name != agent.name:
+		# 				if self.is_collision(a,o):
+		# 					rew -= self.col_pen
 		
+		if my_dist_from_goal > .1:
+			# add existance penalty
+			rew += -0.01
+
+
 		return rew
 
 
