@@ -152,14 +152,16 @@ class Scenario(BaseScenario):
 
 		for landmark in world.landmarks:
 			if np.sqrt(np.sum(np.square(agent.state.p_pos - landmark.state.p_pos))) < 0.1:
-				rew += 2.0
+				# rew += 2.0
+				rew += 1.0
 
 		for other_agent in world.agents:
 			if agent.team_id != other_agent.team_id:
 				for landmark in world.landmarks:
 					if agent.team_id == landmark.team_id:
 						if np.sqrt(np.sum(np.square(other_agent.state.p_pos - landmark.state.p_pos))) < 0.1:
-							rew -= 1.0
+							# rew -= 1.0
+							rew -= 2.0
 
 		# change position of goal after all agents are rewarded and the timestep is completed
 		if self.num_agents == int(agent.name[-1]):
