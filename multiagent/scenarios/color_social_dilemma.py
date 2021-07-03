@@ -17,7 +17,7 @@ class Scenario(BaseScenario):
 		self.col_pen = .1
 		world.col_pen = self.col_pen
 
-		self.team_size = 1
+		self.team_size = 2
 
 		self.num_teams = self.num_agents//self.team_size
 		self.teams = {}
@@ -155,36 +155,51 @@ class Scenario(BaseScenario):
 				rew += 2.0
 
 		for other_agent in world.agents:
-			if other_agent.name != agent.name and agent.team_id != other_agent.team_id:
+			if agent.team_id != other_agent.team_id:
 				for landmark in world.landmarks:
 					if agent.team_id == landmark.team_id:
 						if np.sqrt(np.sum(np.square(other_agent.state.p_pos - landmark.state.p_pos))) < 0.1:
 							rew -= 1.0
 
-		self.move_landmark(world)
+		# change position of goal after all agents are rewarded and the timestep is completed
+		if self.num_agents == int(agent.name[-1]):
+			self.move_landmark(world)
 
 		return rew
 
 
 	def observation(self, agent, world):
 		
-		current_agent_critic = [agent.state.p_pos,agent.state.p_vel, np.asarray([agent.team_id])]
+		# current_agent_critic = [agent.state.p_pos,agent.state.p_vel, np.asarray([agent.team_id])]
 		
-		current_agent_actor = [agent.state.p_pos,agent.state.p_vel, np.asarray([agent.team_id])]
+		# current_agent_actor = [agent.state.p_pos,agent.state.p_vel, np.asarray([agent.team_id])]
 
+		# for landmark in world.landmarks:
+		# 	current_agent_actor.append(landmark.state.p_pos)
+		# 	current_agent_actor.append(np.asarray([landmark.team_id]))
+		# 	current_agent_critic.append(landmark.state.p_pos)
+		# 	current_agent_critic.append(np.asarray([landmark.team_id]))
+
+		# return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor)
+
+		agent_info = [agent.state.p_pos,agent.state.p_vel, np.asarray([agent.team_id])]
+
+		landmark_infos = []
+		landmark_info = []
 		for landmark in world.landmarks:
-			current_agent_actor.append(landmark.state.p_pos)
-			current_agent_actor.append(np.asarray([landmark.team_id]))
-			current_agent_critic.append(landmark.state.p_pos)
-			current_agent_critic.append(np.asarray([landmark.team_id]))
+			landmark_info.append(landmark.state.p_pos[0])
+			landmark_info.append(landmark.state.p_pos[1])
+			landmark_info.append(landmark.team_id)
+			landmark_infos.append(landmark_info)
+			landmark_info = []
 
-		return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor)
+		return np.concatenate(agent_info),np.asarray(landmark_infos)
 
 
 	def isFinished(self,agent,world):
-		index = int(agent.name[-1])
-		dist = np.sqrt(np.sum(np.square(world.agents[index].state.p_pos - world.landmarks[index].state.p_pos)))
-		if dist<0.1:
-			return True
+		# index = int(agent.name[-1])
+		# dist = np.sqrt(np.sum(np.square(world.agents[index].state.p_pos - world.landmarks[index].state.p_pos)))
+		# if dist<0.1:
+		# 	return True
 		return False
 		
