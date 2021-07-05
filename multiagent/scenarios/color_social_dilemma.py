@@ -162,8 +162,8 @@ class Scenario(BaseScenario):
 							rew -= 1.0
 
 		# change position of goal after all agents are rewarded and the timestep is completed
-		if self.num_agents == int(agent.name[-1]):
-			self.move_landmark(world)
+		# if self.num_agents == int(agent.name[-1]):
+		# 	self.move_landmark(world)
 
 		return rew
 
