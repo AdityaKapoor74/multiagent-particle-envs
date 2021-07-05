@@ -182,7 +182,9 @@ class Scenario(BaseScenario):
 
 		# return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor)
 
-		agent_info = [agent.state.p_pos,agent.state.p_vel, np.asarray([agent.team_id])]
+		agent_id = int(agent.name[-1])
+
+		agent_info = [agent.state.p_pos,agent.state.p_vel,np.asarray([agent_id]),np.asarray([agent.team_id])]
 
 		landmark_infos = []
 		landmark_info = []
