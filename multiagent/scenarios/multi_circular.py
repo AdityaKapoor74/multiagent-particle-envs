@@ -170,9 +170,10 @@ class Scenario(BaseScenario):
 
 		agent.prevDistance = agent_dist_from_goal
 
-		for a in world.agents:
-			if self.is_collision(a, agent):
-				rew -= self.col_pen
+		# for a in world.agents:
+		# 	if self.is_collision(a, agent):
+		# 		rew -= self.col_pen
+
 		# assert False
 
 		# # SHARED COLLISION REWARD
@@ -182,13 +183,13 @@ class Scenario(BaseScenario):
 		# 			rew -=0.01
 
 		## COLLISION REWARD FOR OTHER AGENTS
-		# for a in world.agents:
-		# 	if a.name != agent.name:
-		# 		for o in world.agents:
-		# 			if o.name != agent.name:
-		# 				if self.is_collision(a,o):
-		# 					# print(str(a.name) +' in collision with '+str(o.name)+'   would add pen to '+str(world.agents[my_index].name))
-		# 					rew -= self.col_pen/2 # divide by 2 so as not to overcount collisions
+		for a in world.agents:
+			if a.name != agent.name:
+				for o in world.agents:
+					if o.name != agent.name:
+						if self.is_collision(a,o):
+							# print(str(a.name) +' in collision with '+str(o.name)+'   would add pen to '+str(world.agents[my_index].name))
+							rew -= self.col_pen/2 # divide by 2 so as not to overcount collisions
 
 		# Penalty of existence
 		# if agent_dist_from_goal > .1:
@@ -209,6 +210,9 @@ class Scenario(BaseScenario):
 
 		return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor)
 
+	def allFinished(self,world):
+		for agent in world.agents:
+			agent_index = int(agent.name[-1])
 
 	def isFinished(self,agent,world):
 		index = int(agent.name[-1])
