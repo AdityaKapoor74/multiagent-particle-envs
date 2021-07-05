@@ -184,7 +184,7 @@ class Scenario(BaseScenario):
 
 		agent_id = int(agent.name[-1])
 
-		agent_info = [agent.state.p_pos,agent.state.p_vel,np.asarray([agent_id]),np.asarray([agent.team_id])]
+		agent_info = [agent.state.p_pos,agent.state.p_vel,np.asarray([agent.team_id])]
 
 		landmark_infos = []
 		landmark_info = []
