@@ -10,8 +10,8 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 4
-		self.num_landmarks = 4
+		self.num_agents = 8
+		self.num_landmarks = 8
 		self.num_circles = 2
 		self.num_agents_per_circle = self.num_agents//self.num_circles # keeping it uniform (try to make it a perfectly divisible)
 		self.col_pen = 0.1
@@ -69,7 +69,7 @@ class Scenario(BaseScenario):
 
 
 	def reset_world(self, world):
-		color_choice = [np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([0,0,0]), np.array([128,0,0]), np.array([0,128,0]), np.array([0,0,128]), np.array([128,128,128]), np.array([128,0,128]), np.array([128,128,0])]
+		color_choice = [np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([0,0,0]), np.array([128,0,0]), np.array([0,128,0]), np.array([0,0,128]), np.array([128,0,128]), np.array([128,128,0]), np.array([128,128,128])]
 		# AGENT 0 : red
 		# AGENT 1 : lime
 		# AGENT 2 : blue
@@ -171,9 +171,9 @@ class Scenario(BaseScenario):
 		agent.prevDistance = agent_dist_from_goal
 
 		# penalise on collision
-		# for a in world.agents:
-		# 	if self.is_collision(a, agent):
-		# 		rew -= self.col_pen
+		for a in world.agents:
+			if self.is_collision(a, agent):
+				rew -= self.col_pen
 
 		# assert False
 
@@ -184,13 +184,13 @@ class Scenario(BaseScenario):
 		# 			rew -=0.01
 
 		## COLLISION REWARD FOR OTHER AGENTS
-		for a in world.agents:
-			if a.name != agent.name:
-				for o in world.agents:
-					if o.name != agent.name:
-						if self.is_collision(a,o):
-							# print(str(a.name) +' in collision with '+str(o.name)+'   would add pen to '+str(world.agents[my_index].name))
-							rew -= self.col_pen/2 # divide by 2 so as not to overcount collisions
+		# for a in world.agents:
+		# 	if a.name != agent.name:
+		# 		for o in world.agents:
+		# 			if o.name != agent.name:
+		# 				if self.is_collision(a,o):
+		# 					# print(str(a.name) +' in collision with '+str(o.name)+'   would add pen to '+str(world.agents[my_index].name))
+		# 					rew -= self.col_pen/2 # divide by 2 so as not to overcount collisions
 
 		# Penalty of existence
 		# if agent_dist_from_goal > .1:
