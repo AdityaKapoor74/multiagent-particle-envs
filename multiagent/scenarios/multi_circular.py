@@ -1,7 +1,7 @@
 import numpy as np
 from multiagent.core import World, Agent, Landmark
 from multiagent.scenario import BaseScenario
-# import webcolors
+import webcolors
 import math
 
 
@@ -69,7 +69,7 @@ class Scenario(BaseScenario):
 
 
 	def reset_world(self, world):
-		# color_choice = [np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([0,0,0]), np.array([128,0,0]), np.array([0,128,0]), np.array([0,0,128]), np.array([128,128,128]), np.array([128,0,128]), np.array([128,128,0])]
+		color_choice = [np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([0,0,0]), np.array([128,0,0]), np.array([0,128,0]), np.array([0,0,128]), np.array([128,128,128]), np.array([128,0,128]), np.array([128,128,0])]
 		# AGENT 0 : red
 		# AGENT 1 : lime
 		# AGENT 2 : blue
@@ -82,11 +82,11 @@ class Scenario(BaseScenario):
 
 		for i in range(self.num_agents):
 			rgb = np.random.uniform(-1,1,3)
-			world.agents[i].color = rgb
-			world.landmarks[i].color = rgb
-			# world.agents[i].color = color_choice[i]
-			# world.landmarks[i].color = color_choice[i]
-			# print("AGENT", world.agents[i].name[-1], ":", webcolors.rgb_to_name((color_choice[i][0],color_choice[i][1],color_choice[i][2])))
+			# world.agents[i].color = rgb
+			# world.landmarks[i].color = rgb
+			world.agents[i].color = color_choice[i]
+			world.landmarks[i].color = color_choice[i]
+			print("AGENT", world.agents[i].name[-1], ":", webcolors.rgb_to_name((color_choice[i][0],color_choice[i][1],color_choice[i][2])))
 
 		# set random initial states
 		agent_list = []
@@ -184,13 +184,13 @@ class Scenario(BaseScenario):
 		# 			rew -=0.01
 
 		## COLLISION REWARD FOR OTHER AGENTS
-		# for a in world.agents:
-		# 	if a.name != agent.name:
-		# 		for o in world.agents:
-		# 			if o.name != agent.name:
-		# 				if self.is_collision(a,o):
-		# 					# print(str(a.name) +' in collision with '+str(o.name)+'   would add pen to '+str(world.agents[my_index].name))
-		# 					rew -= self.col_pen/2 # divide by 2 so as not to overcount collisions
+		for a in world.agents:
+			if a.name != agent.name:
+				for o in world.agents:
+					if o.name != agent.name:
+						if self.is_collision(a,o):
+							# print(str(a.name) +' in collision with '+str(o.name)+'   would add pen to '+str(world.agents[my_index].name))
+							rew -= self.col_pen/2 # divide by 2 so as not to overcount collisions
 
 		# Penalty of existence
 		# if agent_dist_from_goal > .1:
