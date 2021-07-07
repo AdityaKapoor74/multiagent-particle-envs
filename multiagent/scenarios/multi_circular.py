@@ -171,9 +171,9 @@ class Scenario(BaseScenario):
 		agent.prevDistance = agent_dist_from_goal
 
 		# penalise on collision
-		for a in world.agents:
-			if self.is_collision(a, agent):
-				rew -= self.col_pen
+		# for a in world.agents:
+		# 	if self.is_collision(a, agent):
+		# 		rew -= self.col_pen
 
 		# assert False
 
