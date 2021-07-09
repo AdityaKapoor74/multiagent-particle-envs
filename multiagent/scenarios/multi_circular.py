@@ -10,8 +10,8 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 4
-		self.num_landmarks = 4
+		self.num_agents = 8
+		self.num_landmarks = 8
 		self.num_circles = 2
 		self.num_agents_per_circle = self.num_agents//self.num_circles # keeping it uniform (try to make it a perfectly divisible)
 		self.col_pen = 0.1
