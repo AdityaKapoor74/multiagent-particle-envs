@@ -10,8 +10,8 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 8
-		self.num_landmarks = 8
+		self.num_agents = 4
+		self.num_landmarks = 4
 		self.num_circles = 2
 		self.num_agents_per_circle = self.num_agents//self.num_circles # keeping it uniform (try to make it a perfectly divisible)
 		self.col_pen = 0.1
@@ -38,8 +38,6 @@ class Scenario(BaseScenario):
 			agent.silent = True
 			agent.size = agent_size
 			agent.prevDistance = None
-			if i==0 or i == 2:
-				agent.initial_mass = 5.0
 
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
