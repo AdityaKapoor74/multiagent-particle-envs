@@ -10,8 +10,8 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 4
-		self.num_landmarks = 4
+		self.num_agents = 8
+		self.num_landmarks = 8
 		self.num_circles = 2
 		self.num_agents_per_circle = self.num_agents//self.num_circles # keeping it uniform (try to make it a perfectly divisible)
 		self.col_pen = 0.1
@@ -208,10 +208,7 @@ class Scenario(BaseScenario):
 		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
 
 		return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor)
-
-	def allFinished(self,world):
-		for agent in world.agents:
-			agent_index = int(agent.name[-1])
+		
 
 	def isFinished(self,agent,world):
 		index = int(agent.name[-1])

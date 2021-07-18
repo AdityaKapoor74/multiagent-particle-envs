@@ -15,6 +15,8 @@ class Scenario(BaseScenario):
 		self.num_landmarks = 8
 		self.pen_existence = 0.1
 		self.pen_collision = 0.1
+		self.agent_size = 0.15
+		self.landmark_size = 0.1
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
@@ -25,7 +27,7 @@ class Scenario(BaseScenario):
 			agent.name = 'agent %d' % i
 			agent.collide = False
 			agent.silent = True
-			agent.size = 0.1 #was 0.15
+			agent.size = self.agent_size
 			agent.prevDistance = None
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
@@ -58,7 +60,7 @@ class Scenario(BaseScenario):
 					continue
 				delta_pos = landmark.state.p_pos - other_landmark.state.p_pos
 				dist = np.sqrt(np.sum(np.square(delta_pos)))
-				dist_min = (landmark.size + other_landmark.size)
+				dist_min = self.agent_size*2
 				if dist < dist_min:
 					return True 
 
@@ -161,9 +163,9 @@ class Scenario(BaseScenario):
 
 		agent.prevDistance = agent_dist_from_goal
 
-		for a in world.agents:
-			if self.is_collision(a, world.agents[my_index]):
-				rew -= self.pen_collision
+		# for a in world.agents:
+		# 	if self.is_collision(a, world.agents[my_index]):
+		# 		rew -= self.pen_collision
 
 		# # SHARED COLLISION REWARD
 		# for a in world.agents:
@@ -177,18 +179,19 @@ class Scenario(BaseScenario):
 				for o in world.agents:
 					if o.name != agent.name:
 						if self.is_collision(a,o):
-							rew -= self.pen_collision
+							rew -= self.pen_collision/2
 
 		# Penalty of existence
 		# if agent_dist_from_goal < 0.1:
 		# 	rew -= self.pen_existence
 
-		collision_count = 0
-		for other_agent in world.agents:
-			if self.is_collision(agent, other_agent):
-				collision_count += 1
+		# collision_count = 0
+		# for other_agent in world.agents:
+		# 	if self.is_collision(agent, other_agent):
+		# 		collision_count += 1
 		
-		return rew, collision_count
+		# return rew, collision_count
+		return rew
 
 
 	def observation(self, agent, world):
