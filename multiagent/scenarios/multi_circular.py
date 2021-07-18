@@ -29,7 +29,7 @@ class Scenario(BaseScenario):
 		world.collaborative = True
 
 		# add agents
-		agent_size = .15
+		agent_size = .1
 		world.agent_size = agent_size
 		world.agents = [Agent() for i in range(self.num_agents)]
 		for i, agent in enumerate(world.agents):
@@ -208,7 +208,7 @@ class Scenario(BaseScenario):
 		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
 
 		return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor)
-		
+
 
 	def isFinished(self,agent,world):
 		index = int(agent.name[-1])
