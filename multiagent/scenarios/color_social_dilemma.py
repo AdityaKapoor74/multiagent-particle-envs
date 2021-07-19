@@ -9,21 +9,24 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 4
-		self.num_landmarks = 4
+		self.num_agents = 8
+		self.num_landmarks = 2
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
 		self.col_pen = .1
+		self.exist_pen = 0.01
 		world.col_pen = self.col_pen
 
-		self.team_size = 2
+		self.team_size = self.num_agents//2
 
 		self.num_teams = self.num_agents//self.team_size
 		self.teams = {}
-		for i in range(0,self.num_agents,self.team_size):
-			self.teams[i] = i+1
-			self.teams[i+1] = i
+		for i in range(0,self.num_agents):
+			if i < self.team_size:
+				self.teams[i] = 1
+			else:
+				self.teams[i] = 2
 
 		print("TEAM SIZE", self.team_size)
 		print("NUMBER OF TEAMS", self.num_teams)
@@ -43,6 +46,7 @@ class Scenario(BaseScenario):
 			landmark.name = 'landmark %d' % i
 			landmark.collide = False
 			landmark.movable = False
+			landmark.size = 0.2
 		# make initial conditions
 		self.reset_world(world)
 		return world
@@ -76,18 +80,21 @@ class Scenario(BaseScenario):
 	def reset_world(self, world):
 		color_choice = 2*[np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([0,0,0]), np.array([128,0,0]), np.array([0,128,0]), np.array([0,0,128]), np.array([128,128,128]), np.array([128,0,128]), np.array([128,128,0])]
 
-		for i in range(0,self.num_agents,self.team_size):
-			for j in range(i,i+self.team_size):
-				# rgb = np.random.uniform(-1,1,3)
-				# rgb = np.random.randint(0,255,3)
-				# print(rgb)
-				# world.agents[i].color = rgb
-				# world.landmarks[i].color = rgb
-				world.agents[j].color = color_choice[i]
-				world.landmarks[j].color = color_choice[i]
-				world.agents[j].team_id = i
-				world.landmarks[j].team_id = i
-				# print("AGENT", world.agents[i].name[-1], ":", webcolors.rgb_to_name((color_choice[i][0],color_choice[i][1],color_choice[i][2])))
+		for i,agent in enumerate(world.agents):
+			if i < self.team_size:
+				agent.color = color_choice[0]
+				agent.team_id = 1
+			else:
+				agent.color = color_choice[1]
+				agent.team_id = 2
+
+		world.landmarks[0].color = color_choice[0]
+		world.landmarks[0].team_id = 1
+
+		world.landmarks[1].color = color_choice[1]
+		world.landmarks[1].team_id = 2
+
+
 
 		agent_list = []
 		# set random initial states
@@ -136,7 +143,7 @@ class Scenario(BaseScenario):
 			return False
 		delta_pos = agent1.state.p_pos - agent2.state.p_pos
 		dist = np.sqrt(np.sum(np.square(delta_pos)))
-		dist_min = (agent1.size + agent2.size) * 1.5
+		dist_min = (agent1.size + agent2.size)
 		return True if dist < dist_min else False
 
 
@@ -148,18 +155,18 @@ class Scenario(BaseScenario):
 
 	def reward(self, agent, world):
 		# add existance penalty
-		rew = -0.01
+		rew = -self.exist_pen
 
 		for landmark in world.landmarks:
 			if np.sqrt(np.sum(np.square(agent.state.p_pos - landmark.state.p_pos))) < 0.1:
-				rew += 1.0
+				rew += 0.1
 
 		for other_agent in world.agents:
 			if agent.team_id != other_agent.team_id:
 				for landmark in world.landmarks:
 					if agent.team_id == landmark.team_id:
 						if np.sqrt(np.sum(np.square(other_agent.state.p_pos - landmark.state.p_pos))) < 0.1:
-							rew -= 1.0
+							rew -= 0.2
 
 		# change position of goal after all agents are rewarded and the timestep is completed
 		# if self.num_agents == int(agent.name[-1]):
@@ -169,40 +176,24 @@ class Scenario(BaseScenario):
 
 
 	def observation(self, agent, world):
-		
-		# current_agent_critic = [agent.state.p_pos,agent.state.p_vel, np.asarray([agent.team_id])]
-		
-		# current_agent_actor = [agent.state.p_pos,agent.state.p_vel, np.asarray([agent.team_id])]
-
-		# for landmark in world.landmarks:
-		# 	current_agent_actor.append(landmark.state.p_pos)
-		# 	current_agent_actor.append(np.asarray([landmark.team_id]))
-		# 	current_agent_critic.append(landmark.state.p_pos)
-		# 	current_agent_critic.append(np.asarray([landmark.team_id]))
-
-		# return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor)
 
 		agent_id = int(agent.name[-1])
 
 		agent_info = [agent.state.p_pos,agent.state.p_vel,np.asarray([agent.team_id])]
 
-		landmark_infos = []
-		landmark_info = []
 		for landmark in world.landmarks:
-			landmark_info.append(landmark.state.p_pos[0])
-			landmark_info.append(landmark.state.p_pos[1])
-			landmark_info.append(landmark.team_id)
-			landmark_infos.append(landmark_info)
-			landmark_info = []
+			agent_info.append(landmark.state.p_pos)
+			agent_info.append(np.asarray([landmark.team_id]))
 
-		return np.concatenate(agent_info),np.asarray(landmark_infos)
+
+		return np.concatenate(agent_info), np.concatenate(agent_info)
 
 
 	def isFinished(self,agent,world):
+		
 		for landmark in world.landmarks:
 			if np.sqrt(np.sum(np.square(agent.state.p_pos - landmark.state.p_pos))) < 0.1:
 				return True
-
 
 		return False
 		
