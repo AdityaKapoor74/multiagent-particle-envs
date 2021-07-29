@@ -204,5 +204,14 @@ class Scenario(BaseScenario):
 
 
 	def isFinished(self,agent,world):
+		# agents_reached = 0
+		# for agent in world.agents:
+		# 	for landmark in world.landmarks:
+		# 		if np.sqrt(np.sum(np.square(agent.state.p_pos - landmark.state.p_pos))) < 0.1: 
+		# 			agents_reached += 1
+		# 			break
+		# if agents_reached == self.num_agents:
+		# 	return True
+
 		return False
 		
