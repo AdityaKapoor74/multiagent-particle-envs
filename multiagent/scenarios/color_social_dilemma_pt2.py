@@ -9,7 +9,7 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 16
+		self.num_agents = 8
 		self.num_landmarks = 2
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
@@ -165,6 +165,15 @@ class Scenario(BaseScenario):
 	def observation(self, agent, world):
 
 		agent_id = int(agent.name[-1])
+
+		if agent.state.p_pos[0]>1.0+agent.size:
+			agent.state.p_pos[0] = 1.0
+		if agent.state.p_pos[0]<-1.0-agent.size:
+			agent.state.p_pos[0] = -1.0
+		if agent.state.p_pos[1]<-1.0-agent.size:
+			agent.state.p_pos[1] = -1.0
+		if agent.state.p_pos[1]<-1.0-agent.size:
+			agent.state.p_pos[1] = -1.0
 
 		agent_info = [agent.state.p_pos,agent.state.p_vel,np.asarray([agent.team_id])]
 
