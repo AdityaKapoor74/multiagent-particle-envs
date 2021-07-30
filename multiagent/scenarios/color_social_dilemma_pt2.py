@@ -71,7 +71,7 @@ class Scenario(BaseScenario):
 					continue
 				delta_pos = landmark.state.p_pos - other_landmark.state.p_pos
 				dist = np.sqrt(np.sum(np.square(delta_pos)))
-				dist_min = (landmark.size + other_landmark.size)
+				dist_min = (landmark.size + other_landmark.size) * 1.5
 				if dist < dist_min:
 					return True 
 
@@ -143,53 +143,26 @@ class Scenario(BaseScenario):
 		return (rew, collisions, min_dists, occupied_landmarks)
 
 
-	def is_collision(self, agent1, agent2):
-		if agent1.name == agent2.name:
-			return False
-		delta_pos = agent1.state.p_pos - agent2.state.p_pos
-		dist = np.sqrt(np.sum(np.square(delta_pos)))
-		dist_min = (agent1.size + agent2.size)
-		return True if dist < dist_min else False
-
-
-	def move_landmark(self,world):
-		for agent in world.agents:
-			for landmark in world.landmarks:
-				if np.sqrt(np.sum(np.square(agent.state.p_pos - landmark.state.p_pos))) < 0.1:
-					landmark.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
-
 	def reward(self, agent, world):
 		# add existance penalty
-		rew = agent.state.p_pos[1]/100.0
+		rew = agent.state.p_pos[0]/100.0
 
 		for landmark in world.landmarks:
-			if np.sqrt(np.sum(np.square(agent.state.p_pos - landmark.state.p_pos))) < 0.1:
-				rew += 1.0
+			if np.sqrt(np.sum(np.square(agent.state.p_pos - landmark.state.p_pos))) < 0.01:
+				rew += 1.0/self.num_agents
 
 		for other_agent in world.agents:
 			if agent.team_id != other_agent.team_id:
 				for landmark in world.landmarks:
 					if agent.team_id == landmark.team_id:
-						if np.sqrt(np.sum(np.square(other_agent.state.p_pos - landmark.state.p_pos))) < 0.1:
-							rew -= 2.0
+						if np.sqrt(np.sum(np.square(other_agent.state.p_pos - landmark.state.p_pos))) < 0.01:
+							rew -= 2.0/self.num_agents
 
-		# change position of goal after all agents are rewarded and the timestep is completed
-		# if self.num_agents == int(agent.name[-1]):
-		# 	self.move_landmark(world)
 
 		return rew
 
 
 	def observation(self, agent, world):
-
-		if agent.state.p_pos[0]>1.0:
-			agent.state.p_pos[0] = 0.0
-		elif agent.state.p_pos[0]<-1.0:
-			agent.state.p_pos[0] = -1.0
-		elif agent.state.p_pos[1]>1.0:
-			agent.state.p_pos[1] = 0.0
-		elif agent.state.p_pos[1]<-1.0:
-			agent.state.p_pos[1] = -1.0
 
 		agent_id = int(agent.name[-1])
 
