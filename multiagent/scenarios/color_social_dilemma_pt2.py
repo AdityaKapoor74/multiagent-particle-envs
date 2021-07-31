@@ -148,14 +148,14 @@ class Scenario(BaseScenario):
 		rew = agent.state.p_pos[0]/100.0
 
 		for landmark in world.landmarks:
-			if np.sqrt(np.sum(np.square(agent.state.p_pos - landmark.state.p_pos))) < 0.01:
+			if np.sqrt(np.sum(np.square(agent.state.p_pos - landmark.state.p_pos))) < 0.2:
 				rew += 1.0/self.num_agents
 
 		for other_agent in world.agents:
 			if agent.team_id != other_agent.team_id:
 				for landmark in world.landmarks:
 					if agent.team_id == landmark.team_id:
-						if np.sqrt(np.sum(np.square(other_agent.state.p_pos - landmark.state.p_pos))) < 0.01:
+						if np.sqrt(np.sum(np.square(other_agent.state.p_pos - landmark.state.p_pos))) < 0.2:
 							rew -= 2.0/self.num_agents
 
 
