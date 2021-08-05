@@ -15,7 +15,7 @@ class Scenario(BaseScenario):
 		self.num_landmarks = 16
 		self.pen_existence = 0.1
 		self.pen_collision = 0.1
-		self.agent_size = 0.15
+		self.agent_size = 0.1 # agent size = 0.1 (16 Agents)/ agent size = 0.15
 		self.landmark_size = 0.1
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
@@ -147,7 +147,7 @@ class Scenario(BaseScenario):
 			return False
 		delta_pos = agent1.state.p_pos - agent2.state.p_pos
 		dist = np.sqrt(np.sum(np.square(delta_pos)))
-		dist_min = agent1.size + agent2.size
+		dist_min = (agent1.size + agent2.size) + 1 # adding +1 for 16 agent case because we decreased agent size
 		return True if dist < dist_min else False
 
 
