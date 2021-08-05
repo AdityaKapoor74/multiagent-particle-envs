@@ -11,8 +11,8 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 16
-		self.num_landmarks = 16
+		self.num_agents = 12
+		self.num_landmarks = 12
 		self.pen_existence = 0.1
 		self.pen_collision = 0.1
 		self.agent_size = 0.1 # agent size = 0.1 (16 Agents)/ agent size = 0.15
