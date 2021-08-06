@@ -9,7 +9,7 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 8
+		self.num_agents = 16
 		self.num_landmarks = 2
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
@@ -149,14 +149,16 @@ class Scenario(BaseScenario):
 
 		for landmark in world.landmarks:
 			if np.sqrt(np.sum(np.square(agent.state.p_pos - landmark.state.p_pos))) < 0.2:
-				rew += 1.0/self.num_agents
+				# rew += 1.0/self.num_agents
+				rew += 0.125
 
 		for other_agent in world.agents:
 			if agent.team_id != other_agent.team_id:
 				for landmark in world.landmarks:
 					if agent.team_id == landmark.team_id:
 						if np.sqrt(np.sum(np.square(other_agent.state.p_pos - landmark.state.p_pos))) < 0.2:
-							rew -= 2.0/self.num_agents
+							# rew -= 2.0/self.num_agents
+							rew -= 0.25
 
 
 		return rew
