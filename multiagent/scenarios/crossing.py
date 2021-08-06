@@ -204,7 +204,6 @@ class Scenario(BaseScenario):
 			if agent.name == other_agent.name:
 				continue
 			current_agent_critic.append(other_agent.state.p_pos)
-			current_agent_actor.append(other_agent.state.p_pos)
 
 		return np.concatenate(current_agent_critic), np.concatenate(current_agent_actor)
 
