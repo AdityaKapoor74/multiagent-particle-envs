@@ -185,13 +185,13 @@ class Scenario(BaseScenario):
 		# if agent_dist_from_goal < 0.1:
 		# 	rew -= self.pen_existence
 
-		# collision_count = 0
-		# for other_agent in world.agents:
-		# 	if self.is_collision(agent, other_agent):
-		# 		collision_count += 1
+		collision_count = 0
+		for other_agent in world.agents:
+			if self.is_collision(agent, other_agent):
+				collision_count += 1
 		
-		# return rew, collision_count
-		return rew
+		return rew, collision_count
+		# return rew
 
 
 	def observation(self, agent, world):
