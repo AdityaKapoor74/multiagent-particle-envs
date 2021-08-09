@@ -163,9 +163,9 @@ class Scenario(BaseScenario):
 
 		agent.prevDistance = agent_dist_from_goal
 
-		# for a in world.agents:
-		# 	if self.is_collision(a, agent):
-		# 		rew -= self.pen_collision
+		for a in world.agents:
+			if self.is_collision(a, agent):
+				rew -= self.pen_collision
 
 		# # SHARED COLLISION REWARD
 		# for a in world.agents:
@@ -174,12 +174,12 @@ class Scenario(BaseScenario):
 		# 			rew -= self.pen_collision
 
 		# COLLISION REWARD FOR OTHER AGENTS
-		for a in world.agents:
-			if a.name != agent.name:
-				for o in world.agents:
-					if o.name != agent.name:
-						if self.is_collision(a,o):
-							rew -= self.pen_collision/2
+		# for a in world.agents:
+		# 	if a.name != agent.name:
+		# 		for o in world.agents:
+		# 			if o.name != agent.name:
+		# 				if self.is_collision(a,o):
+		# 					rew -= self.pen_collision/2
 
 		# Penalty of existence
 		# if agent_dist_from_goal < 0.1:
@@ -200,12 +200,12 @@ class Scenario(BaseScenario):
 		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
 
 		# appending other agent's positions
-		for other_agent in world.agents:
-			if agent.name == other_agent.name:
-				continue
-			current_agent_critic.append(other_agent.state.p_pos)
+		# for other_agent in world.agents:
+		# 	if agent.name == other_agent.name:
+		# 		continue
+		# 	current_agent_critic.append(other_agent.state.p_pos)
 
-		return np.concatenate(current_agent_critic), np.concatenate(current_agent_actor)
+		# return np.concatenate(current_agent_critic), np.concatenate(current_agent_actor)
 
 
 	def isFinished(self,agent,world):
