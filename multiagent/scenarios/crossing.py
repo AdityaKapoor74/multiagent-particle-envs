@@ -205,7 +205,7 @@ class Scenario(BaseScenario):
 		# 		continue
 		# 	current_agent_critic.append(other_agent.state.p_pos)
 
-		# return np.concatenate(current_agent_critic), np.concatenate(current_agent_actor)
+		return np.concatenate(current_agent_critic), np.concatenate(current_agent_actor)
 
 
 	def isFinished(self,agent,world):
