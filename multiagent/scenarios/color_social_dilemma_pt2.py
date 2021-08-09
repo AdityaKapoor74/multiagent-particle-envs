@@ -9,7 +9,7 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 16
+		self.num_agents = 8
 		self.num_landmarks = 2
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
@@ -38,7 +38,7 @@ class Scenario(BaseScenario):
 			agent.name = 'agent %d' % i
 			agent.collide = False
 			agent.silent = True
-			agent.size = 0.1 #was 0.15
+			agent.size = 0.15
 			agent.prevDistance = None #0.0
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
@@ -59,7 +59,7 @@ class Scenario(BaseScenario):
 					continue
 				delta_pos = agent.state.p_pos - other_agent.state.p_pos
 				dist = np.sqrt(np.sum(np.square(delta_pos)))
-				dist_min = (agent.size + other_agent.size) * 1.5
+				dist_min = (agent.size + other_agent.size)
 				if dist < dist_min:
 					return True 
 
@@ -156,7 +156,7 @@ class Scenario(BaseScenario):
 			if agent.team_id != other_agent.team_id:
 				for landmark in world.landmarks:
 					if agent.team_id == landmark.team_id:
-						if np.sqrt(np.sum(np.square(other_agent.state.p_pos - landmark.state.p_pos))) < 0.2:
+						if np.sqrt(np.sum(np.square(other_agent.state.p_pos - landmark.state.p_pos))) < 0.1:
 							# rew -= 2.0/self.num_agents
 							rew -= 0.25
 
