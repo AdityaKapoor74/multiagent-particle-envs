@@ -21,7 +21,7 @@ class Scenario(BaseScenario):
 			agent.name = 'agent %d' % i
 			agent.collide = True
 			agent.silent = True
-			agent.size = 0.1 #was 0.15
+			agent.size = 0.15 #was 0.15
 			agent.prevDistance = None
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
@@ -133,10 +133,10 @@ class Scenario(BaseScenario):
 		# 		if self.is_collision(a, world.agents[my_index]):
 		# 			rew -= 1
 
-		# if world.agents[paired_agent_index].collide:
-		# 	for a in world.agents:
-		# 		if self.is_collision(a, world.agents[paired_agent_index]):
-		# 			rew -= 1
+		if world.agents[paired_agent_index].collide:
+			for a in world.agents:
+				if self.is_collision(a, world.agents[paired_agent_index]):
+					rew -= 1
 		
 		return rew
 
