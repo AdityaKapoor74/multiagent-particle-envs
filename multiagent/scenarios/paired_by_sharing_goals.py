@@ -75,7 +75,6 @@ class Scenario(BaseScenario):
 			agent.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
 			agent.state.p_vel = np.zeros(world.dim_p)
 			agent.state.c = np.zeros(world.dim_c)
-
 			agent.prevDistance = None
 
 		for i, landmark in enumerate(world.landmarks):
@@ -133,10 +132,10 @@ class Scenario(BaseScenario):
 		# 		if self.is_collision(a, world.agents[my_index]):
 		# 			rew -= 1
 
-		if world.agents[paired_agent_index].collide:
-			for a in world.agents:
-				if self.is_collision(a, world.agents[paired_agent_index]):
-					rew -= 1
+		# if world.agents[paired_agent_index].collide:
+		# 	for a in world.agents:
+		# 		if self.is_collision(a, world.agents[paired_agent_index]):
+		# 			rew -= 1
 		
 		return rew
 
