@@ -156,7 +156,7 @@ class Scenario(BaseScenario):
 			if agent.team_id != other_agent.team_id:
 				for landmark in world.landmarks:
 					if agent.team_id == landmark.team_id:
-						if np.sqrt(np.sum(np.square(other_agent.state.p_pos - landmark.state.p_pos))) < 0.1:
+						if np.sqrt(np.sum(np.square(other_agent.state.p_pos - landmark.state.p_pos))) < 0.2:
 							# rew -= 2.0/self.num_agents
 							rew -= 0.25
 
@@ -177,11 +177,19 @@ class Scenario(BaseScenario):
 		if agent.state.p_pos[1]<-1.0-agent.size:
 			agent.state.p_pos[1] = -1.0
 
-		agent_info = [agent.state.p_pos,agent.state.p_vel,np.asarray([agent.team_id])]
+		if agent.team_id == 1:
+			one_hot_team = np.asarray([1,0])
+		elif agent.team_id == 2:
+			one_hot_team = np.asarray([0,1])
+		agent_info = [agent.state.p_pos,agent.state.p_vel,one_hot_team]
 
 		for landmark in world.landmarks:
 			agent_info.append(landmark.state.p_pos)
-			agent_info.append(np.asarray([landmark.team_id]))
+			if landmark.team_id == 1:
+				one_hot_team = np.asarray([1,0])
+			elif landmark.team_id == 2:
+				one_hot_team = np.asarray([0,1])
+			agent_info.append(one_hot_team)
 
 
 		return np.concatenate(agent_info), np.concatenate(agent_info)
