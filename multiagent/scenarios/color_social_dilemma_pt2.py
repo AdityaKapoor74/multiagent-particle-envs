@@ -176,20 +176,12 @@ class Scenario(BaseScenario):
 			agent.state.p_pos[1] = -1.0
 		if agent.state.p_pos[1]<-1.0-agent.size:
 			agent.state.p_pos[1] = -1.0
-
-		if agent.team_id == 1:
-			one_hot_team = np.asarray([1,0])
-		elif agent.team_id == 2:
-			one_hot_team = np.asarray([0,1])
-		agent_info = [agent.state.p_pos,agent.state.p_vel,one_hot_team]
+			
+		agent_info = [agent.state.p_pos,agent.state.p_vel,np.asarray([agent.team_id])]
 
 		for landmark in world.landmarks:
 			agent_info.append(landmark.state.p_pos)
-			if landmark.team_id == 1:
-				one_hot_team = np.asarray([1,0])
-			elif landmark.team_id == 2:
-				one_hot_team = np.asarray([0,1])
-			agent_info.append(one_hot_team)
+			agent_info.append(np.asarray([landmark.team_id]))
 
 
 		return np.concatenate(agent_info), np.concatenate(agent_info)
