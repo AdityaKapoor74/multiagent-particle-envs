@@ -176,9 +176,9 @@ class Scenario(BaseScenario):
 
 		# COLLISION PENALTY FOR NON COLLIDING TEAM MEMBERS
 		for a in world.agents:
-			if a.name != agent.name or a.team_id == agent.team_id:
+			if a.name != agent.name and a.team_id == agent.team_id:
 				for o in world.agents:
-					if o.name != agent.name or o.team_id == agent.team_id:
+					if o.name != agent.name and o.team_id == agent.team_id:
 						if self.is_collision(a,o):
 							rew -= self.pen_collision/2
 
