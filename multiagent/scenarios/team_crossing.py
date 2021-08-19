@@ -14,7 +14,6 @@ class Scenario(BaseScenario):
 		self.num_agents = 8
 		self.num_landmarks = 8
 		self.team_size = 4
-		self.pen_existence = 0.1
 		self.pen_collision = 0.1
 		self.agent_size = 0.15
 		self.landmark_size = 0.1
@@ -180,7 +179,7 @@ class Scenario(BaseScenario):
 				for o in world.agents:
 					if o.name != agent.name and o.team_id == agent.team_id:
 						if self.is_collision(a,o):
-							rew -= self.pen_collision/2
+							rew -= self.pen_collision
 
 		collision_count = 0
 		for other_agent in world.agents:
