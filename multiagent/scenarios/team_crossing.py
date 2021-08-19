@@ -13,12 +13,14 @@ class Scenario(BaseScenario):
 		# world.dim_c = 2
 		self.num_agents = 8
 		self.num_landmarks = 8
+		self.team_size = 4
 		self.pen_existence = 0.1
 		self.pen_collision = 0.1
 		self.agent_size = 0.15
 		self.landmark_size = 0.1
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
+		print("TEAM SIZE", self.team_size)
 		world.collaborative = True
 
 		# add agents
@@ -29,7 +31,7 @@ class Scenario(BaseScenario):
 			agent.silent = True
 			agent.size = self.agent_size
 			agent.prevDistance = None
-			if i<4:
+			if i<self.team_size:
 				agent.team_id = 1
 			else:
 				agent.team_id = 2
@@ -39,10 +41,6 @@ class Scenario(BaseScenario):
 			landmark.name = 'landmark %d' % i
 			landmark.collide = False
 			landmark.movable = False
-			if i<4:
-				landmark.team_id = 1
-			else:
-				landmark.team_id = 2
 		# make initial conditions
 		self.reset_world(world)
 		return world
@@ -79,7 +77,7 @@ class Scenario(BaseScenario):
 		color_choice = [np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([0,0,0]), np.array([128,0,0]), np.array([0,128,0]), np.array([0,0,128]), np.array([128,0,128]), np.array([128,128,0]), np.array([128,128,128])]
 		for i in range(self.num_agents):
 			# rgb = np.random.uniform(-1,1,3)
-			if i < 4:
+			if i < self.team_size:
 				world.agents[i].color = color_choice[0]
 				world.landmarks[i].color = color_choice[0]
 			else:
@@ -176,35 +174,20 @@ class Scenario(BaseScenario):
 
 		agent.prevDistance = agent_dist_from_goal
 
-		# for a in world.agents:
-		# 	if self.is_collision(a, world.agents[my_index]):
-		# 		rew -= self.pen_collision
-
-		# # SHARED COLLISION REWARD
-		# for a in world.agents:
-		# 	for o in world.agents:
-		# 		if self.is_collision(a,o):
-		# 			rew -= self.pen_collision
-
-		# COLLISION REWARD FOR OTHER AGENTS
+		# COLLISION PENALTY FOR NON COLLIDING TEAM MEMBERS
 		for a in world.agents:
-			if a.name != agent.name or a.team_id != agent.team_id:
+			if a.name != agent.name or a.team_id == agent.team_id:
 				for o in world.agents:
-					if o.name != agent.name or o.team_id != agent.team_id:
+					if o.name != agent.name or o.team_id == agent.team_id:
 						if self.is_collision(a,o):
 							rew -= self.pen_collision/2
 
-		# Penalty of existence
-		# if agent_dist_from_goal < 0.1:
-		# 	rew -= self.pen_existence
-
-		# collision_count = 0
-		# for other_agent in world.agents:
-		# 	if self.is_collision(agent, other_agent):
-		# 		collision_count += 1
+		collision_count = 0
+		for other_agent in world.agents:
+			if self.is_collision(agent, other_agent):
+				collision_count += 1
 		
-		# return rew, collision_count
-		return rew
+		return rew, collision_count
 
 
 	def observation(self, agent, world):
