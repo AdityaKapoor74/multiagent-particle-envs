@@ -40,6 +40,10 @@ class Scenario(BaseScenario):
 			landmark.name = 'landmark %d' % i
 			landmark.collide = False
 			landmark.movable = False
+			if i<self.team_size:
+				landmark.team_id = 1
+			else:
+				landmark.team_id = 2
 		# make initial conditions
 		self.reset_world(world)
 		return world
@@ -49,7 +53,7 @@ class Scenario(BaseScenario):
 
 		if agent is not None and agent_list is not None:
 			for other_agent in agent_list:
-				if agent.name == other_agent.name:
+				if agent.name == other_agent.name or agent.team_id == other_agent.team_id:
 					continue
 				delta_pos = agent.state.p_pos - other_agent.state.p_pos
 				dist = np.sqrt(np.sum(np.square(delta_pos)))
@@ -61,7 +65,7 @@ class Scenario(BaseScenario):
 
 		elif landmark is not None and landmark_list is not None:
 			for other_landmark in landmark_list:
-				if landmark.name == other_landmark.name:
+				if landmark.name == other_landmark.name or landmark.team_id == other_landmark.team_id:
 					continue
 				delta_pos = landmark.state.p_pos - other_landmark.state.p_pos
 				dist = np.sqrt(np.sum(np.square(delta_pos)))
