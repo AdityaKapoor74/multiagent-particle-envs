@@ -38,7 +38,7 @@ class Scenario(BaseScenario):
 			agent.name = 'agent %d' % i
 			agent.collide = False
 			agent.silent = True
-			agent.size = 0.1 #was 0.15
+			agent.size = 0.15
 			agent.prevDistance = None #0.0
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
@@ -59,7 +59,7 @@ class Scenario(BaseScenario):
 					continue
 				delta_pos = agent.state.p_pos - other_agent.state.p_pos
 				dist = np.sqrt(np.sum(np.square(delta_pos)))
-				dist_min = (agent.size + other_agent.size) * 1.5
+				dist_min = (agent.size + other_agent.size)
 				if dist < dist_min:
 					return True 
 
@@ -100,9 +100,12 @@ class Scenario(BaseScenario):
 		# set random initial states
 		for agent in world.agents:
 			agent.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
+			agent.state.p_pos[0] = -1.0
 
-			while self.check_collision_before_spawning(agent, None, agent_list, None):
-				agent.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
+			# while self.check_collision_before_spawning(agent, None, agent_list, None):
+			# 	print("AGENT COLLISION")
+			# 	agent.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
+			# 	agent.state.p_pos[0] = -1.0
 
 			agent.state.p_vel = np.zeros(world.dim_p)
 			agent.state.c = np.zeros(world.dim_c)
@@ -112,9 +115,11 @@ class Scenario(BaseScenario):
 		landmark_list = []
 		for landmark in world.landmarks:
 			landmark.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
+			landmark.state.p_pos[0] = 1.0 - landmark.size
 			
 			while self.check_collision_before_spawning(None, landmark, None, landmark_list):
 				landmark.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
+				landmark.state.p_pos[0] = 1.0 - landmark.size
 			
 			landmark.state.p_vel = np.zeros(world.dim_p)
 			landmark_list.append(landmark)
@@ -138,39 +143,23 @@ class Scenario(BaseScenario):
 		return (rew, collisions, min_dists, occupied_landmarks)
 
 
-	def is_collision(self, agent1, agent2):
-		if agent1.name == agent2.name:
-			return False
-		delta_pos = agent1.state.p_pos - agent2.state.p_pos
-		dist = np.sqrt(np.sum(np.square(delta_pos)))
-		dist_min = (agent1.size + agent2.size)
-		return True if dist < dist_min else False
-
-
-	def move_landmark(self,world):
-		for agent in world.agents:
-			for landmark in world.landmarks:
-				if np.sqrt(np.sum(np.square(agent.state.p_pos - landmark.state.p_pos))) < 0.1:
-					landmark.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
-
 	def reward(self, agent, world):
 		# add existance penalty
-		rew = -self.exist_pen
+		rew = agent.state.p_pos[0]/100.0
 
 		for landmark in world.landmarks:
-			if np.sqrt(np.sum(np.square(agent.state.p_pos - landmark.state.p_pos))) < 0.1:
-				rew += 1.0
+			if np.sqrt(np.sum(np.square(agent.state.p_pos - landmark.state.p_pos))) < 0.2:
+				# rew += 1.0/self.num_agents
+				rew += 0.125
 
 		for other_agent in world.agents:
 			if agent.team_id != other_agent.team_id:
 				for landmark in world.landmarks:
 					if agent.team_id == landmark.team_id:
-						if np.sqrt(np.sum(np.square(other_agent.state.p_pos - landmark.state.p_pos))) < 0.1:
-							rew -= 2.0
+						if np.sqrt(np.sum(np.square(other_agent.state.p_pos - landmark.state.p_pos))) < 0.2:
+							# rew -= 2.0/self.num_agents
+							rew -= 0.25
 
-		# change position of goal after all agents are rewarded and the timestep is completed
-		# if self.num_agents == int(agent.name[-1]):
-		# 	self.move_landmark(world)
 
 		return rew
 
@@ -179,6 +168,15 @@ class Scenario(BaseScenario):
 
 		agent_id = int(agent.name[-1])
 
+		if agent.state.p_pos[0]>1.0+agent.size:
+			agent.state.p_pos[0] = 1.0
+		if agent.state.p_pos[0]<-1.0-agent.size:
+			agent.state.p_pos[0] = -1.0
+		if agent.state.p_pos[1]<-1.0-agent.size:
+			agent.state.p_pos[1] = -1.0
+		if agent.state.p_pos[1]<-1.0-agent.size:
+			agent.state.p_pos[1] = -1.0
+			
 		agent_info = [agent.state.p_pos,agent.state.p_vel,np.asarray([agent.team_id])]
 
 		for landmark in world.landmarks:
@@ -190,10 +188,14 @@ class Scenario(BaseScenario):
 
 
 	def isFinished(self,agent,world):
-
-		for landmark in world.landmarks:
-			if np.sqrt(np.sum(np.square(agent.state.p_pos - landmark.state.p_pos))) < 0.1:
-				return True
+		# agents_reached = 0
+		# for agent in world.agents:
+		# 	for landmark in world.landmarks:
+		# 		if np.sqrt(np.sum(np.square(agent.state.p_pos - landmark.state.p_pos))) < 0.1: 
+		# 			agents_reached += 1
+		# 			break
+		# if agents_reached == self.num_agents:
+		# 	return True
 
 		return False
 		
