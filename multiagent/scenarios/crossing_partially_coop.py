@@ -11,9 +11,9 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 32
-		self.num_landmarks = 32
-		self.team_size = 16
+		self.num_agents = 24
+		self.num_landmarks = 24
+		self.team_size = 8
 		self.pen_collision = 0.1
 		self.agent_size = 0.15
 		self.landmark_size = 0.1
@@ -32,8 +32,10 @@ class Scenario(BaseScenario):
 			agent.prevDistance = None
 			if i<self.team_size:
 				agent.team_id = 1
-			else:
+			elif i>= self.team_size and i<2*self.team_size:
 				agent.team_id = 2
+			else:
+				agent.team_id = 3
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
 		for i, landmark in enumerate(world.landmarks):
@@ -42,8 +44,10 @@ class Scenario(BaseScenario):
 			landmark.movable = False
 			if i<self.team_size:
 				landmark.team_id = 1
-			else:
+			elif i>= self.team_size and i<2*self.team_size:
 				landmark.team_id = 2
+			else:
+				landmark.team_id = 3
 		# make initial conditions
 		self.reset_world(world)
 		return world
@@ -51,30 +55,29 @@ class Scenario(BaseScenario):
 
 	def check_collision_before_spawning(self,agent,landmark,agent_list,landmark_list):
 
-		# if agent is not None and agent_list is not None:
-		# 	for other_agent in agent_list:
-		# 		if agent.name == other_agent.name or agent.team_id == other_agent.team_id:
-		# 			continue
-		# 		delta_pos = agent.state.p_pos - other_agent.state.p_pos
-		# 		dist = np.sqrt(np.sum(np.square(delta_pos)))
-		# 		dist_min = (agent.size + other_agent.size)
-		# 		if dist < dist_min:
-		# 			return True 
+		if agent is not None and agent_list is not None:
+			for other_agent in agent_list:
+				if agent.name == other_agent.name or agent.team_id != other_agent.team_id:
+					continue
+				delta_pos = agent.state.p_pos - other_agent.state.p_pos
+				dist = np.sqrt(np.sum(np.square(delta_pos)))
+				dist_min = (agent.size + other_agent.size)
+				if dist < dist_min:
+					return True 
 
-		# 	return False
+			return False
 
-		# elif landmark is not None and landmark_list is not None:
-		# 	for other_landmark in landmark_list:
-		# 		if landmark.name == other_landmark.name or landmark.team_id == other_landmark.team_id:
-		# 			continue
-		# 		delta_pos = landmark.state.p_pos - other_landmark.state.p_pos
-		# 		dist = np.sqrt(np.sum(np.square(delta_pos)))
-		# 		dist_min = self.agent_size*2
-		# 		if dist < dist_min:
-		# 			return True 
+		elif landmark is not None and landmark_list is not None:
+			for other_landmark in landmark_list:
+				if landmark.name == other_landmark.name or landmark.team_id != other_landmark.team_id:
+					continue
+				delta_pos = landmark.state.p_pos - other_landmark.state.p_pos
+				dist = np.sqrt(np.sum(np.square(delta_pos)))
+				dist_min = self.agent_size*2
+				if dist < dist_min:
+					return True 
 
-			# return False
-		return False
+			return False
 
 	def reset_world(self, world):
 		agent_list = []
