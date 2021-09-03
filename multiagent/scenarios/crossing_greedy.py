@@ -181,6 +181,12 @@ class Scenario(BaseScenario):
 		current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
 		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
 
+		# appending other agent's positions and team id
+		# for other_agent in world.agents:
+		# 	if agent.name == other_agent.name:
+		# 		continue
+		# 	current_agent_critic.append(other_agent.state.p_pos)
+
 		return np.concatenate(current_agent_critic), np.concatenate(current_agent_actor)
 
 
