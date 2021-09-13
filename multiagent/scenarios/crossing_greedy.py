@@ -11,11 +11,13 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 8
-		self.num_landmarks = 8
+		self.num_agents = 16
+		self.num_landmarks = 16
 		self.pen_existence = 0.1
 		self.pen_collision = 0.1
-		self.agent_size = 0.15 # agent size = 0.1 (16 Agents)/ agent size = 0.15
+		self.threshold_dist = 0.1
+		self.goal_reward = 0.1
+		self.agent_size = 0.1 # agent size = 0.1 (16 Agents)/ agent size = 0.15
 		self.landmark_size = 0.1
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
@@ -172,6 +174,10 @@ class Scenario(BaseScenario):
 		for other_agent in world.agents:
 			if self.is_collision(agent, other_agent):
 				collision_count += 1
+
+		# on reaching goal we reward the agent
+		if agent_dist_from_goal<self.threshold_dist:
+			rew += self.goal_reward
 		
 		return rew, collision_count
 
@@ -181,19 +187,13 @@ class Scenario(BaseScenario):
 		current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
 		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
 
-		# appending other agent's positions and team id
-		# for other_agent in world.agents:
-		# 	if agent.name == other_agent.name:
-		# 		continue
-		# 	current_agent_critic.append(other_agent.state.p_pos)
-
 		return np.concatenate(current_agent_critic), np.concatenate(current_agent_actor)
 
 
 	def isFinished(self,agent,world):
 		index = world.agents.index(agent)
 		dist = np.sqrt(np.sum(np.square(agent.state.p_pos - world.landmarks[index].state.p_pos)))
-		if dist<0.1:
+		if dist<self.threshold_dist:
 			return True
 		return False
 		

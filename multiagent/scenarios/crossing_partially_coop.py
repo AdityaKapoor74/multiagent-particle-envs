@@ -198,6 +198,15 @@ class Scenario(BaseScenario):
 
 
 	def observation(self, agent, world):
+		if agent.state.p_pos[0]>1.0+agent.size:
+			agent.state.p_pos[0] = 1.0
+		if agent.state.p_pos[0]<-1.0-agent.size:
+			agent.state.p_pos[0] = -1.0
+		if agent.state.p_pos[1]<-1.0-agent.size:
+			agent.state.p_pos[1] = -1.0
+		if agent.state.p_pos[1]<-1.0-agent.size:
+			agent.state.p_pos[1] = -1.0
+			
 		curr_agent_index = world.agents.index(agent)
 		current_agent_critic = [agent.state.p_pos,agent.state.p_vel,np.array([agent.team_id]),world.landmarks[curr_agent_index].state.p_pos]
 
