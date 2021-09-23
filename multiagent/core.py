@@ -82,6 +82,8 @@ class Agent(Entity):
         self.direction = ""
         # agent team num
         self.team_id = None
+        # goal reached?
+        self.goal_reached = False
         # state
         self.state = AgentState()
         # action

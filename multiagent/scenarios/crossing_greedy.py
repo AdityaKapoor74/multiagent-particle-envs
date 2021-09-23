@@ -31,6 +31,7 @@ class Scenario(BaseScenario):
 			agent.silent = True
 			agent.size = self.agent_size
 			agent.prevDistance = None
+			agent.goal_reached = False
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
 		for i, landmark in enumerate(world.landmarks):
@@ -121,6 +122,7 @@ class Scenario(BaseScenario):
 
 			agent_list.append(world.agents[i])
 
+			world.agents[i].goal_reached = False
 			world.agents[i].state.p_vel = np.zeros(world.dim_p)
 			world.agents[i].state.c = np.zeros(world.dim_c)
 			world.agents[i].prevDistance = None
@@ -161,12 +163,14 @@ class Scenario(BaseScenario):
 		
 		agent_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
 
-		if agent.prevDistance is None:
-			rew = 0
-		else:
-			rew = agent.prevDistance - agent_dist_from_goal
+		# if agent.prevDistance is None:
+		# 	rew = 0
+		# else:
+		# 	rew = agent.prevDistance - agent_dist_from_goal
 
-		agent.prevDistance = agent_dist_from_goal
+		# agent.prevDistance = agent_dist_from_goal
+
+		rew = -agent_dist_from_goal/100.0
 
 		for a in world.agents:
 			if self.is_collision(a, agent):
@@ -179,8 +183,9 @@ class Scenario(BaseScenario):
 				collision_count += 1
 
 		# on reaching goal we reward the agent
-		if agent_dist_from_goal<self.threshold_dist:
-			rew += self.goal_reward
+		# if agent_dist_from_goal<self.threshold_dist and agent.goal_reached == False:
+		# 	rew += self.goal_reward
+		# 	agent.goal_reached = True
 		
 		return rew, collision_count
 
