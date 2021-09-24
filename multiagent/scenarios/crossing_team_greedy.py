@@ -11,16 +11,18 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 8
-		self.num_landmarks = 8
-		self.pen_existence = 0.1
-		self.pen_collision = 0.1
+		self.num_agents = 12
+		self.num_landmarks = 12
 		self.threshold_dist = 0.1
 		self.goal_reward = 0.1
-		self.agent_size = 0.15 # agent size = 0.1 (16 Agents)/ agent size = 0.15
+		self.pen_collision = 0.1
+		self.team_size = 4
+		self.pen_collision = 0.1
+		self.agent_size = 0.15
 		self.landmark_size = 0.1
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
+		print("TEAM SIZE", self.team_size)
 		world.collaborative = True
 
 		# add agents
@@ -31,13 +33,24 @@ class Scenario(BaseScenario):
 			agent.silent = True
 			agent.size = self.agent_size
 			agent.prevDistance = None
-			agent.goal_reached = False
+			if i<self.team_size:
+				agent.team_id = 1
+			elif i>= self.team_size and i<2*self.team_size:
+				agent.team_id = 2
+			else:
+				agent.team_id = 3
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
 		for i, landmark in enumerate(world.landmarks):
 			landmark.name = 'landmark %d' % i
 			landmark.collide = False
 			landmark.movable = False
+			if i<self.team_size:
+				landmark.team_id = 1
+			elif i>= self.team_size and i<2*self.team_size:
+				landmark.team_id = 2
+			else:
+				landmark.team_id = 3
 		# make initial conditions
 		self.reset_world(world)
 		return world
@@ -47,36 +60,43 @@ class Scenario(BaseScenario):
 
 		if agent is not None and agent_list is not None:
 			for other_agent in agent_list:
-				if agent.name == other_agent.name:
+				if agent.name == other_agent.name or agent.team_id != other_agent.team_id:
 					continue
 				delta_pos = agent.state.p_pos - other_agent.state.p_pos
 				dist = np.sqrt(np.sum(np.square(delta_pos)))
-				dist_min = self.agent_size*2
+				dist_min = (agent.size + other_agent.size)
 				if dist < dist_min:
-					print("AGENT COLLISION")
 					return True 
 
 			return False
 
 		elif landmark is not None and landmark_list is not None:
 			for other_landmark in landmark_list:
-				if landmark.name == other_landmark.name:
+				if landmark.name == other_landmark.name or landmark.team_id != other_landmark.team_id:
 					continue
 				delta_pos = landmark.state.p_pos - other_landmark.state.p_pos
 				dist = np.sqrt(np.sum(np.square(delta_pos)))
 				dist_min = self.agent_size*2
 				if dist < dist_min:
-					print("LANDMARK COLLISION")
 					return True 
 
 			return False
 
 	def reset_world(self, world):
 		agent_list = []
+		color_choice = [np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([0,0,0]), np.array([128,0,0]), np.array([0,128,0]), np.array([0,0,128]), np.array([128,0,128]), np.array([128,128,0]), np.array([128,128,128])]
+		
 		for i in range(self.num_agents):
-			rgb = np.random.uniform(-1,1,3)
-			world.agents[i].color = rgb
-			world.landmarks[i].color = rgb
+			# rgb = np.random.uniform(-1,1,3)
+			if i < self.team_size:
+				world.agents[i].color = color_choice[0]
+				world.landmarks[i].color = color_choice[0]
+			elif i>=self.team_size and i<2*self.team_size:
+				world.agents[i].color = color_choice[1]
+				world.landmarks[i].color = color_choice[1]
+			else:
+				world.agents[i].color = color_choice[2]
+				world.landmarks[i].color = color_choice[2]
 
 			if i%4 == 0:
 				y = random.uniform(-1,1)
@@ -121,7 +141,6 @@ class Scenario(BaseScenario):
 
 			agent_list.append(world.agents[i])
 
-			world.agents[i].goal_reached = False
 			world.agents[i].state.p_vel = np.zeros(world.dim_p)
 			world.agents[i].state.c = np.zeros(world.dim_c)
 			world.agents[i].prevDistance = None
@@ -149,11 +168,11 @@ class Scenario(BaseScenario):
 
 
 	def is_collision(self, agent1, agent2):
-		if agent1.name == agent2.name:
+		if agent1.name == agent2.name or agent1.team_id != agent2.team_id:
 			return False
 		delta_pos = agent1.state.p_pos - agent2.state.p_pos
 		dist = np.sqrt(np.sum(np.square(delta_pos)))
-		dist_min = (agent1.size + agent2.size) #+ 0.1 # adding +1 for 16 agent case because we decreased agent size
+		dist_min = agent1.size + agent2.size
 		return True if dist < dist_min else False
 
 
@@ -162,23 +181,17 @@ class Scenario(BaseScenario):
 		
 		agent_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
 
-		# if agent.prevDistance is None:
-		# 	rew = 0
-		# else:
-		# 	rew = agent.prevDistance - agent_dist_from_goal
+		if agent.prevDistance is None:
+			rew = 0
+		else:
+			rew = agent.prevDistance - agent_dist_from_goal
 
-		# agent.prevDistance = agent_dist_from_goal
-
-		rew = -agent_dist_from_goal/100.0
-
-		for a in world.agents:
-			if self.is_collision(a, agent):
-				rew -= self.pen_collision
-
+		agent.prevDistance = agent_dist_from_goal
 
 		collision_count = 0
 		for other_agent in world.agents:
 			if self.is_collision(agent, other_agent):
+				rew -= self.pen_collision
 				collision_count += 1
 
 		# on reaching goal we reward the agent
@@ -191,16 +204,16 @@ class Scenario(BaseScenario):
 
 	def observation(self, agent, world):
 		curr_agent_index = world.agents.index(agent)
-		current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
-		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
-
+		current_agent_critic = [agent.state.p_pos,agent.state.p_vel,np.array([agent.team_id]),world.landmarks[curr_agent_index].state.p_pos]
+		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,np.array([agent.team_id]),world.landmarks[curr_agent_index].state.p_pos]
+		
 		return np.concatenate(current_agent_critic), np.concatenate(current_agent_actor)
 
 
 	def isFinished(self,agent,world):
 		index = world.agents.index(agent)
 		dist = np.sqrt(np.sum(np.square(agent.state.p_pos - world.landmarks[index].state.p_pos)))
-		if dist<self.threshold_dist:
+		if dist<0.1:
 			return True
 		return False
 		
