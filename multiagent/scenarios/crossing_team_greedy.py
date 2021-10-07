@@ -11,8 +11,8 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 12
-		self.num_landmarks = 12
+		self.num_agents = 20
+		self.num_landmarks = 20
 		self.threshold_dist = 0.1
 		self.goal_reward = 0.1
 		self.pen_collision = 0.1
@@ -37,8 +37,10 @@ class Scenario(BaseScenario):
 				agent.team_id = 1
 			elif i>= self.team_size and i<2*self.team_size:
 				agent.team_id = 2
-			else:
+			elif i>= 2*self.team_size and i<3*self.team_size:
 				agent.team_id = 3
+			else:
+				agent.team_id = 4
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
 		for i, landmark in enumerate(world.landmarks):
@@ -49,8 +51,10 @@ class Scenario(BaseScenario):
 				landmark.team_id = 1
 			elif i>= self.team_size and i<2*self.team_size:
 				landmark.team_id = 2
-			else:
+			elif i>= 2*self.team_size and i<3*self.team_size:
 				landmark.team_id = 3
+			else:
+				landmark.team_id = 4
 		# make initial conditions
 		self.reset_world(world)
 		return world
@@ -94,9 +98,12 @@ class Scenario(BaseScenario):
 			elif i>=self.team_size and i<2*self.team_size:
 				world.agents[i].color = color_choice[1]
 				world.landmarks[i].color = color_choice[1]
-			else:
+			elif i>=2*self.team_size and i<3*self.team_size:
 				world.agents[i].color = color_choice[2]
 				world.landmarks[i].color = color_choice[2]
+			else:
+				world.agents[i].color = color_choice[3]
+				world.landmarks[i].color = color_choice[3]
 
 			if i%4 == 0:
 				y = random.uniform(-1,1)
