@@ -202,7 +202,8 @@ class Scenario(BaseScenario):
 				collision_count += 1
 
 		# on reaching goal we reward the agent
-		if agent_dist_from_goal<self.threshold_dist and agent.goal_reached == False:
+		# if agent_dist_from_goal<self.threshold_dist and agent.goal_reached == False:
+		if agent_dist_from_goal<self.threshold_dist:
 			rew += self.goal_reward
 			agent.goal_reached = True
 		
@@ -220,7 +221,7 @@ class Scenario(BaseScenario):
 	def isFinished(self,agent,world):
 		index = world.agents.index(agent)
 		dist = np.sqrt(np.sum(np.square(agent.state.p_pos - world.landmarks[index].state.p_pos)))
-		if dist<0.1:
+		if dist<self.threshold_dist:
 			return True
 		return False
 		
