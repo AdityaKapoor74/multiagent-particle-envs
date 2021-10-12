@@ -14,8 +14,8 @@ class Scenario(BaseScenario):
 		self.num_agents = 20
 		self.num_landmarks = 20
 		self.threshold_dist = 0.1
-		self.goal_reward = 0.1
-		self.pen_collision = 0.1
+		self.goal_reward = 1.0
+		self.pen_collision = 1.0
 		self.team_size = 4
 		self.pen_collision = 0.1
 		self.agent_size = 0.15
@@ -188,12 +188,14 @@ class Scenario(BaseScenario):
 		
 		agent_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
 
-		if agent.prevDistance is None:
-			rew = 0
-		else:
-			rew = agent.prevDistance - agent_dist_from_goal
+		# if agent.prevDistance is None:
+		# 	rew = 0
+		# else:
+		# 	rew = agent.prevDistance - agent_dist_from_goal
 
-		agent.prevDistance = agent_dist_from_goal
+		# agent.prevDistance = agent_dist_from_goal
+
+		rew = -agent_dist_from_goal/10.0
 
 		collision_count = 0
 		for other_agent in world.agents:
