@@ -14,10 +14,9 @@ class Scenario(BaseScenario):
 		self.num_agents = 20
 		self.num_landmarks = 20
 		self.threshold_dist = 0.1
-		self.goal_reward = 1.0
-		self.pen_collision = 1.0
+		self.goal_reward = 1e-1
+		self.pen_collision = 1e-1
 		self.team_size = 4
-		self.pen_collision = 0.1
 		self.agent_size = 0.15
 		self.landmark_size = 0.1
 		print("NUMBER OF AGENTS:",self.num_agents)
@@ -39,8 +38,10 @@ class Scenario(BaseScenario):
 				agent.team_id = 2
 			elif i>= 2*self.team_size and i<3*self.team_size:
 				agent.team_id = 3
-			else:
+			elif i>= 3*self.team_size and i<4*self.team_size:
 				agent.team_id = 4
+			else:
+				agent.team_id = 5
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
 		for i, landmark in enumerate(world.landmarks):
@@ -53,8 +54,10 @@ class Scenario(BaseScenario):
 				landmark.team_id = 2
 			elif i>= 2*self.team_size and i<3*self.team_size:
 				landmark.team_id = 3
-			else:
+			elif i>= 3*self.team_size and i<4*self.team_size:
 				landmark.team_id = 4
+			else:
+				landmark.team_id = 5
 		# make initial conditions
 		self.reset_world(world)
 		return world
@@ -195,7 +198,7 @@ class Scenario(BaseScenario):
 
 		# agent.prevDistance = agent_dist_from_goal
 
-		rew = -agent_dist_from_goal/10.0
+		rew = -agent_dist_from_goal/100.0
 
 		collision_count = 0
 		for other_agent in world.agents:
