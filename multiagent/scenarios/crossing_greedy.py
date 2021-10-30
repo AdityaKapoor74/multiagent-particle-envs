@@ -53,7 +53,7 @@ class Scenario(BaseScenario):
 				dist = np.sqrt(np.sum(np.square(delta_pos)))
 				dist_min = self.agent_size*2
 				if dist < dist_min:
-					print("AGENT COLLISION")
+					# print("AGENT COLLISION")
 					return True 
 
 			return False
