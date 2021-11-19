@@ -167,9 +167,7 @@ class Scenario(BaseScenario):
 		else:
 			rew = agent.prevDistance - agent_dist_from_goal
 
-		# agent.prevDistance = agent_dist_from_goal
-
-		# rew = -agent_dist_from_goal/100.0
+		agent.prevDistance = agent_dist_from_goal
 
 		for a in world.agents:
 			if self.is_collision(a, agent):
@@ -180,11 +178,6 @@ class Scenario(BaseScenario):
 		for other_agent in world.agents:
 			if self.is_collision(agent, other_agent):
 				collision_count += 1
-
-		# on reaching goal we reward the agent
-		# if agent_dist_from_goal<self.threshold_dist and agent.goal_reached == False:
-		# 	rew += self.goal_reward
-		# 	agent.goal_reached = True
 		
 		return rew, collision_count
 
