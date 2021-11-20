@@ -71,7 +71,7 @@ class Scenario(BaseScenario):
 					continue
 				delta_pos = landmark.state.p_pos - other_landmark.state.p_pos
 				dist = np.sqrt(np.sum(np.square(delta_pos)))
-				dist_min = (landmark.size + other_landmark.size) * 1.5
+				dist_min = (landmark.size + other_landmark.size) * 2
 				if dist < dist_min:
 					return True 
 
@@ -114,11 +114,11 @@ class Scenario(BaseScenario):
 
 		landmark_list = []
 		for landmark in world.landmarks:
-			landmark.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
+			landmark.state.p_pos = np.random.uniform(-1.0, -landmark.size, world.dim_p)
 			landmark.state.p_pos[0] = 1.0 - landmark.size
 			
 			while self.check_collision_before_spawning(None, landmark, None, landmark_list):
-				landmark.state.p_pos = np.random.uniform(-1, +1, world.dim_p)
+				landmark.state.p_pos = np.random.uniform(landmark.size, 1.0, world.dim_p)
 				landmark.state.p_pos[0] = 1.0 - landmark.size
 			
 			landmark.state.p_vel = np.zeros(world.dim_p)
