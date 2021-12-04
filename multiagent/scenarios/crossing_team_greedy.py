@@ -218,9 +218,10 @@ class Scenario(BaseScenario):
 
 	def observation(self, agent, world):
 		curr_agent_index = world.agents.index(agent)
-		team = [0 for i in range(self.num_agents//self.team_size)]
-		team[agent.team_id-1] = 1
-		team = np.array(team)
+		# team = [0 for i in range(self.num_agents//self.team_size)]
+		# team[agent.team_id-1] = 1
+		# team = np.array(team)
+		team = np.array([agent.team_id])
 		current_agent_critic = [agent.state.p_pos,agent.state.p_vel,team,world.landmarks[curr_agent_index].state.p_pos]
 		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,team,world.landmarks[curr_agent_index].state.p_pos]
 		
