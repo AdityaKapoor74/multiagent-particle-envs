@@ -108,7 +108,7 @@ class Scenario(BaseScenario):
 				world.agents[i].color = color_choice[3]
 				world.landmarks[i].color = color_choice[3]
 
-			if i%4 == 0:
+			if i%self.team_size == 0:
 				y = random.uniform(-1,1)
 				x = -1
 				world.agents[i].state.p_pos = np.array([x,y])
@@ -118,7 +118,7 @@ class Scenario(BaseScenario):
 					world.agents[i].state.p_pos = np.array([x,y])
 					world.landmarks[i].state.p_pos = np.array([-x,y])
 				world.agents[i].direction = "y"
-			elif i%4 == 1:
+			elif i%self.team_size == 1:
 				x = random.uniform(-1,1)
 				y = -1
 				world.agents[i].state.p_pos = np.array([x,y])
@@ -128,7 +128,7 @@ class Scenario(BaseScenario):
 					world.agents[i].state.p_pos = np.array([x,y])
 					world.landmarks[i].state.p_pos = np.array([x,-y])
 				world.agents[i].direction = "x"
-			elif i%4 == 2:
+			elif i%self.team_size == 2:
 				y = random.uniform(-1,1)
 				x = 1
 				world.agents[i].state.p_pos = np.array([x,y])
@@ -138,7 +138,7 @@ class Scenario(BaseScenario):
 					world.agents[i].state.p_pos = np.array([x,y])
 					world.landmarks[i].state.p_pos = np.array([-x,y])
 				world.agents[i].direction = "-y"
-			elif i%4 == 3:
+			elif i%self.team_size == 3:
 				x = random.uniform(-1,1)
 				y = 1
 				world.agents[i].state.p_pos = np.array([x,y])
@@ -191,14 +191,14 @@ class Scenario(BaseScenario):
 		
 		agent_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
 
-		if agent.prevDistance is None:
-			rew = 0
-		else:
-			rew = agent.prevDistance - agent_dist_from_goal
+		# if agent.prevDistance is None:
+		# 	rew = 0
+		# else:
+		# 	rew = agent.prevDistance - agent_dist_from_goal
 
-		agent.prevDistance = agent_dist_from_goal
+		# agent.prevDistance = agent_dist_from_goal
 
-		# rew = -agent_dist_from_goal/1000.0
+		rew = -agent_dist_from_goal/10.0
 
 		collision_count = 0
 		for other_agent in world.agents:
@@ -208,9 +208,9 @@ class Scenario(BaseScenario):
 
 		# on reaching goal we reward the agent
 		# if agent_dist_from_goal<self.threshold_dist and agent.goal_reached == False:
-		if agent_dist_from_goal<self.threshold_dist:
-			rew += self.goal_reward
-			agent.goal_reached = True
+		# if agent_dist_from_goal<self.threshold_dist:
+			# rew += self.goal_reward
+			# agent.goal_reached = True
 			
 
 		return rew, collision_count
