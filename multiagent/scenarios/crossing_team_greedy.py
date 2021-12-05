@@ -198,7 +198,7 @@ class Scenario(BaseScenario):
 
 		# agent.prevDistance = agent_dist_from_goal
 
-		rew = -agent_dist_from_goal/10.0
+		rew = -agent_dist_from_goal/100.0
 
 		collision_count = 0
 		for other_agent in world.agents:
