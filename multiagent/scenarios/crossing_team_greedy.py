@@ -15,7 +15,7 @@ class Scenario(BaseScenario):
 		self.num_landmarks = 20
 		self.threshold_dist = 0.1
 		self.goal_reward = 1e-1
-		self.pen_collision = 1e-1
+		self.pen_collision = 1.0
 		self.team_size = 4
 		self.agent_size = 0.15
 		self.landmark_size = 0.1
