@@ -211,7 +211,7 @@ class Scenario(BaseScenario):
 		# if agent_dist_from_goal<self.threshold_dist and agent.goal_reached == False:
 		goal_reached = 0
 		if agent_dist_from_goal<self.threshold_dist:
-			rew += self.goal_reward
+			# rew += self.goal_reward
 			goal_reached = 1
 			# agent.goal_reached = True
 		else:
