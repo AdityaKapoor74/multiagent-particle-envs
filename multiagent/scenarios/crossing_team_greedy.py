@@ -15,8 +15,9 @@ class Scenario(BaseScenario):
 		self.num_landmarks = 20
 		self.threshold_dist = 0.1
 		self.goal_reward = 1e-1
+		self.pen_existence = 1e-2
 		self.team_size = 4
-		self.pen_collision = 0.1/(self.team_size-1)
+		self.pen_collision = 1
 		self.agent_size = 0.15
 		self.landmark_size = 0.1
 		print("NUMBER OF AGENTS:",self.num_agents)
@@ -71,7 +72,7 @@ class Scenario(BaseScenario):
 					continue
 				delta_pos = agent.state.p_pos - other_agent.state.p_pos
 				dist = np.sqrt(np.sum(np.square(delta_pos)))
-				dist_min = (agent.size + other_agent.size)
+				dist_min = self.agent_size*3
 				if dist < dist_min:
 					return True 
 
@@ -83,7 +84,7 @@ class Scenario(BaseScenario):
 					continue
 				delta_pos = landmark.state.p_pos - other_landmark.state.p_pos
 				dist = np.sqrt(np.sum(np.square(delta_pos)))
-				dist_min = self.agent_size*2
+				dist_min = self.agent_size*3
 				if dist < dist_min:
 					return True 
 
@@ -91,7 +92,7 @@ class Scenario(BaseScenario):
 
 	def reset_world(self, world):
 		agent_list = []
-		color_choice = [np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([0,0,0]), np.array([128,0,0]), np.array([0,128,0]), np.array([0,0,128]), np.array([128,0,128]), np.array([128,128,0]), np.array([128,128,128])]
+		color_choice = [np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([0,0,0]), np.array([255,0,255])]
 		
 		for i in range(self.num_agents):
 			# rgb = np.random.uniform(-1,1,3)
@@ -191,14 +192,14 @@ class Scenario(BaseScenario):
 		
 		agent_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
 
-		# if agent.prevDistance is None:
-		# 	rew = 0
-		# else:
-		# 	rew = agent.prevDistance - agent_dist_from_goal
+		if agent.prevDistance is None:
+			rew = 0
+		else:
+			rew = (agent.prevDistance - agent_dist_from_goal)*10
 
-		# agent.prevDistance = agent_dist_from_goal
+		agent.prevDistance = agent_dist_from_goal
 
-		rew = -agent_dist_from_goal/100.0
+		# rew = -agent_dist_from_goal/10.0
 
 		collision_count = 0
 		for other_agent in world.agents:
@@ -208,9 +209,11 @@ class Scenario(BaseScenario):
 
 		# on reaching goal we reward the agent
 		# if agent_dist_from_goal<self.threshold_dist and agent.goal_reached == False:
-		# if agent_dist_from_goal<self.threshold_dist:
-			# rew += self.goal_reward
+		if agent_dist_from_goal<self.threshold_dist:
+			rew += self.goal_reward
 			# agent.goal_reached = True
+		else:
+			rew -= self.pen_existence
 			
 
 		return rew, collision_count
