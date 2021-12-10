@@ -172,8 +172,8 @@ class Scenario(BaseScenario):
 			agent.state.p_pos[0] = 1.0
 		if agent.state.p_pos[0]<-1.0-agent.size:
 			agent.state.p_pos[0] = -1.0
-		if agent.state.p_pos[1]<-1.0-agent.size:
-			agent.state.p_pos[1] = -1.0
+		if agent.state.p_pos[1]>1.0+agent.size:
+			agent.state.p_pos[1] = 1.0
 		if agent.state.p_pos[1]<-1.0-agent.size:
 			agent.state.p_pos[1] = -1.0
 			

@@ -15,8 +15,8 @@ class Scenario(BaseScenario):
 		self.num_landmarks = 20
 		self.threshold_dist = 0.1
 		self.goal_reward = 1e-1
-		self.pen_collision = 1.0
 		self.team_size = 4
+		self.pen_collision = 1/(self.team_size-1)
 		self.agent_size = 0.15
 		self.landmark_size = 0.1
 		print("NUMBER OF AGENTS:",self.num_agents)
@@ -198,7 +198,7 @@ class Scenario(BaseScenario):
 
 		# agent.prevDistance = agent_dist_from_goal
 
-		rew = -agent_dist_from_goal/100.0
+		rew = -agent_dist_from_goal/10.0
 
 		collision_count = 0
 		for other_agent in world.agents:
@@ -217,6 +217,15 @@ class Scenario(BaseScenario):
 
 
 	def observation(self, agent, world):
+		if agent.state.p_pos[0]>1.0:
+			agent.state.p_pos[0] = 1.0
+		if agent.state.p_pos[0]<-1.0:
+			agent.state.p_pos[0] = -1.0
+		if agent.state.p_pos[1]<-1.0:
+			agent.state.p_pos[1] = -1.0
+		if agent.state.p_pos[1]>1.0:
+			agent.state.p_pos[1] = 1.0
+
 		curr_agent_index = world.agents.index(agent)
 		# team = [0 for i in range(self.num_agents//self.team_size)]
 		# team[agent.team_id-1] = 1
