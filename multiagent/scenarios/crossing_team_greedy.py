@@ -224,6 +224,10 @@ class Scenario(BaseScenario):
 		team = np.array([agent.team_id])
 		current_agent_critic = [agent.state.p_pos,agent.state.p_vel,team,world.landmarks[curr_agent_index].state.p_pos]
 		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,team,world.landmarks[curr_agent_index].state.p_pos]
+		for other_agent in world.agents:
+			if other_agent.name == agent.name:
+				continue
+			current_agent_actor.extend([other_agent.state.p_pos,other_agent.state.p_vel,team])
 		
 		return np.concatenate(current_agent_critic), np.concatenate(current_agent_actor)
 
