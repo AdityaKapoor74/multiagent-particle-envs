@@ -11,8 +11,8 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 20
-		self.num_landmarks = 20
+		self.num_agents = 4
+		self.num_landmarks = 4
 		self.threshold_dist = 0.1
 		self.goal_reward = 1e-1
 		self.pen_existence = 1e-2
