@@ -209,14 +209,16 @@ class Scenario(BaseScenario):
 
 		# on reaching goal we reward the agent
 		# if agent_dist_from_goal<self.threshold_dist and agent.goal_reached == False:
+		goal_reached = 0
 		if agent_dist_from_goal<self.threshold_dist:
 			rew += self.goal_reward
+			goal_reached = 1
 			# agent.goal_reached = True
 		else:
 			rew -= self.pen_existence
 			
 
-		return rew, collision_count
+		return rew, collision_count, goal_reached
 
 
 	def observation(self, agent, world):
