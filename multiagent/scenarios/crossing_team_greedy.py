@@ -16,7 +16,7 @@ class Scenario(BaseScenario):
 		self.threshold_dist = 0.1
 		self.goal_reward = 1e-1
 		self.team_size = 4
-		self.pen_collision = 1/(self.team_size-1)
+		self.pen_collision = 0.1/(self.team_size-1)
 		self.agent_size = 0.15
 		self.landmark_size = 0.1
 		print("NUMBER OF AGENTS:",self.num_agents)
@@ -198,7 +198,7 @@ class Scenario(BaseScenario):
 
 		# agent.prevDistance = agent_dist_from_goal
 
-		rew = -agent_dist_from_goal/10.0
+		rew = -agent_dist_from_goal/100.0
 
 		collision_count = 0
 		for other_agent in world.agents:
