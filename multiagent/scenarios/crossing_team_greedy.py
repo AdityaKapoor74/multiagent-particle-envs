@@ -17,7 +17,7 @@ class Scenario(BaseScenario):
 		self.goal_reward = 1e-1
 		self.pen_existence = 1e-2
 		self.team_size = 4
-		self.pen_collision = 1
+		self.pen_collision = 0.1
 		self.agent_size = 0.15
 		self.landmark_size = 0.1
 		print("NUMBER OF AGENTS:",self.num_agents)
@@ -195,7 +195,7 @@ class Scenario(BaseScenario):
 		if agent.prevDistance is None:
 			rew = 0
 		else:
-			rew = (agent.prevDistance - agent_dist_from_goal)*10
+			rew = (agent.prevDistance - agent_dist_from_goal)
 
 		agent.prevDistance = agent_dist_from_goal
 
