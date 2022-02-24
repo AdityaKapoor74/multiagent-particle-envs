@@ -13,11 +13,11 @@ class Scenario(BaseScenario):
 		# world.dim_c = 2
 		self.num_agents = 20
 		self.num_landmarks = 20
-		self.threshold_dist = 0.1
+		self.threshold_dist = 1e-1
 		self.goal_reward = 1e-1
 		self.pen_existence = 1e-2
 		self.team_size = 4
-		self.pen_collision = 0.1
+		self.pen_collision = 1e-1
 		self.agent_size = 0.15
 		self.landmark_size = 0.1
 		print("NUMBER OF AGENTS:",self.num_agents)
@@ -65,7 +65,6 @@ class Scenario(BaseScenario):
 
 
 	def check_collision_before_spawning(self,agent,landmark,agent_list,landmark_list):
-
 		if agent is not None and agent_list is not None:
 			for other_agent in agent_list:
 				if agent.name == other_agent.name or agent.team_id != other_agent.team_id:
@@ -105,9 +104,12 @@ class Scenario(BaseScenario):
 			elif i>=2*self.team_size and i<3*self.team_size:
 				world.agents[i].color = color_choice[2]
 				world.landmarks[i].color = color_choice[2]
-			else:
+			elif i>=3*self.team_size and i<4*self.team_size:
 				world.agents[i].color = color_choice[3]
 				world.landmarks[i].color = color_choice[3]
+			else:
+				world.agents[i].color = color_choice[4]
+				world.landmarks[i].color = color_choice[4]
 
 			if i%self.team_size == 0:
 				y = random.uniform(-1,1)
@@ -208,14 +210,12 @@ class Scenario(BaseScenario):
 				collision_count += 1
 
 		# on reaching goal we reward the agent
-		# if agent_dist_from_goal<self.threshold_dist and agent.goal_reached == False:
-		goal_reached = 0
-		if agent_dist_from_goal<self.threshold_dist:
-			# rew += self.goal_reward
-			goal_reached = 1
-			# agent.goal_reached = True
-		else:
-			rew -= self.pen_existence
+		# if agent_dist_from_goal<self.threshold_dist:
+		# 	# rew += self.goal_reward
+		# 	agent.goal_reached = True
+		# else:
+		# 	agent.goal_reached = False
+		# 	rew -= self.pen_existence
 			
 
 		return rew, collision_count, goal_reached
@@ -236,20 +236,22 @@ class Scenario(BaseScenario):
 		# team[agent.team_id-1] = 1
 		# team = np.array(team)
 		team = np.array([agent.team_id])
-		current_agent_critic = [agent.state.p_pos,agent.state.p_vel,team,world.landmarks[curr_agent_index].state.p_pos]
-		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,team,world.landmarks[curr_agent_index].state.p_pos]
+		current_agent_critic = [agent.state.p_pos, agent.state.p_vel, team, world.landmarks[curr_agent_index].state.p_pos]
+		current_agent_actor = [agent.state.p_pos, agent.state.p_vel, team, world.landmarks[curr_agent_index].state.p_pos]
 		for other_agent in world.agents:
 			if other_agent.name == agent.name:
 				continue
-			current_agent_actor.extend([other_agent.state.p_pos,other_agent.state.p_vel,team])
+			# relative pose, velocity wrt current_agent and team id of other agent 
+			current_agent_actor.extend([other_agent.state.p_pos-agent.state.p_pos,other_agent.state.p_vel-agent.state.p_vel,np.array(other_agent.team_id)])
 		
 		return np.concatenate(current_agent_critic), np.concatenate(current_agent_actor)
 
 
 	def isFinished(self,agent,world):
-		index = world.agents.index(agent)
-		dist = np.sqrt(np.sum(np.square(agent.state.p_pos - world.landmarks[index].state.p_pos)))
-		if dist<self.threshold_dist:
-			return True
-		return False
+		for other_agent in world.agents:
+			index = world.agents.index(other_agent)
+			dist = np.sqrt(np.sum(np.square(other_agent.state.p_pos - world.landmarks[index].state.p_pos)))
+			if dist>self.threshold_dist:
+				return False
+		return True
 		
