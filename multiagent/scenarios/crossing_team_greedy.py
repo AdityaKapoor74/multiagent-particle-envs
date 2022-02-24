@@ -210,9 +210,11 @@ class Scenario(BaseScenario):
 				collision_count += 1
 
 		# on reaching goal we reward the agent
-		# if agent_dist_from_goal<self.threshold_dist:
+		goal_reached = 0
+		if agent_dist_from_goal<self.threshold_dist:
 		# 	# rew += self.goal_reward
-		# 	agent.goal_reached = True
+			# agent.goal_reached = True
+			goal_reached = 1
 		# else:
 		# 	agent.goal_reached = False
 		# 	rew -= self.pen_existence
@@ -242,7 +244,7 @@ class Scenario(BaseScenario):
 			if other_agent.name == agent.name:
 				continue
 			# relative pose, velocity wrt current_agent and team id of other agent 
-			current_agent_actor.extend([other_agent.state.p_pos-agent.state.p_pos,other_agent.state.p_vel-agent.state.p_vel,np.array(other_agent.team_id)])
+			current_agent_actor.extend([other_agent.state.p_pos-agent.state.p_pos,other_agent.state.p_vel-agent.state.p_vel,np.array([other_agent.team_id])])
 		
 		return np.concatenate(current_agent_critic), np.concatenate(current_agent_actor)
 
