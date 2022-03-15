@@ -11,14 +11,14 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 20
-		self.num_landmarks = 20
+		self.num_agents = 12
+		self.num_landmarks = 12
 		self.threshold_dist = 1e-1
 		self.goal_reward = 1e-1
 		self.pen_existence = 1e-2
 		self.team_size = 4
-		self.pen_collision = 1
-		self.agent_size = 0.15
+		self.pen_collision = 0.1
+		self.agent_size = 0.1
 		self.landmark_size = 0.1
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
