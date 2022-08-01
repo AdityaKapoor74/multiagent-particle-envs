@@ -154,16 +154,17 @@ class Scenario(BaseScenario):
 		# current_agent_critic = [agent.state.p_pos,world.landmarks[curr_agent_index].state.p_pos,world.landmarks[paired_agent_index].state.p_pos]
 		
 		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
-		# other_agents_actor = []
+		other_agents_actor = []
 
-		# for other_agent in world.agents:
-		# 	if other_agent is agent:
-		# 	  continue
-		# 	other_agents_actor.append(other_agent.state.p_pos-agent.state.p_pos)
-		# 	other_agents_actor.append(other_agent.state.p_vel-agent.state.p_vel)
+		for other_agent_num, other_agent in enumerate(world.agents):
+			if other_agent is agent:
+			  continue
+			other_agents_actor.append(other_agent.state.p_pos)
+			other_agents_actor.append(other_agent.state.p_vel)
+			other_agents_actor.append(world.landmarks[other_agent_num].state.p_pos)
 
-		# return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor+other_agents_actor)
-		return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor)
+		return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor+other_agents_actor)
+		# return np.concatenate(current_agent_critic),np.concatenate(current_agent_actor)
 
 
 	def isFinished(self,agent,world):
