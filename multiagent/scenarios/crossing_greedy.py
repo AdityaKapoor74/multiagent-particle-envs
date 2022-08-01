@@ -183,14 +183,23 @@ class Scenario(BaseScenario):
 		# if agent_dist_from_goal<self.threshold_dist and agent.goal_reached == False:
 		# 	rew += self.goal_reward
 		# 	agent.goal_reached = True
+
+		goal_reached = 0
+		if agent_dist_from_goal<self.threshold_dist:
+			goal_reached = 1
 		
-		return rew, collision_count
+		return rew, collision_count, goal_reached
 
 
 	def observation(self, agent, world):
 		curr_agent_index = world.agents.index(agent)
 		current_agent_critic = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
 		current_agent_actor = [agent.state.p_pos,agent.state.p_vel,world.landmarks[curr_agent_index].state.p_pos]
+		for other_agent_num, other_agent in enumerate(world.agents):
+			if other_agent.name == agent.name:
+				continue
+			else:
+				current_agent_actor.extend([other_agent.state.p_pos, other_agent.state.p_vel])
 
 		return np.concatenate(current_agent_critic), np.concatenate(current_agent_actor)
 

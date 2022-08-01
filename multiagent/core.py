@@ -84,6 +84,8 @@ class Agent(Entity):
         self.team_id = None
         # goal reached?
         self.goal_reached = False
+        # base camp for food pellet
+        self.base_camp = None
         # state
         self.state = AgentState()
         # action
