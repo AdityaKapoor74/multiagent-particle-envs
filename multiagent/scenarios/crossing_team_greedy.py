@@ -14,10 +14,10 @@ class Scenario(BaseScenario):
 		self.num_agents = 24
 		self.num_landmarks = 24
 		self.threshold_dist = 1e-1
-		self.goal_reward = 1.0
+		self.goal_reward = 0.1
 		self.pen_existence = 1e-2
 		self.team_size = 4
-		self.pen_collision = 1.0
+		self.pen_collision = 0.1
 		self.agent_size = 0.05
 		self.landmark_size = 0.05
 		print("NUMBER OF AGENTS:",self.num_agents)
