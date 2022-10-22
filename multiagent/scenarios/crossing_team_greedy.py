@@ -11,15 +11,15 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 12
-		self.num_landmarks = 12
+		self.num_agents = 24
+		self.num_landmarks = 24
 		self.threshold_dist = 1e-1
-		self.goal_reward = 1e-1
+		self.goal_reward = 1.0
 		self.pen_existence = 1e-2
 		self.team_size = 4
-		self.pen_collision = 0.1
-		self.agent_size = 0.1
-		self.landmark_size = 0.1
+		self.pen_collision = 1.0
+		self.agent_size = 0.05
+		self.landmark_size = 0.05
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		print("TEAM SIZE", self.team_size)
@@ -41,8 +41,10 @@ class Scenario(BaseScenario):
 				agent.team_id = 3
 			elif i>= 3*self.team_size and i<4*self.team_size:
 				agent.team_id = 4
-			else:
+			elif i>= 4*self.team_size and i<5*self.team_size:
 				agent.team_id = 5
+			else:
+				agent.team_id = 6
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
 		for i, landmark in enumerate(world.landmarks):
@@ -57,8 +59,10 @@ class Scenario(BaseScenario):
 				landmark.team_id = 3
 			elif i>= 3*self.team_size and i<4*self.team_size:
 				landmark.team_id = 4
-			else:
+			elif i>= 4*self.team_size and i<5*self.team_size:
 				landmark.team_id = 5
+			else:
+				landmark.team_id = 6
 		# make initial conditions
 		self.reset_world(world)
 		return world
@@ -91,7 +95,7 @@ class Scenario(BaseScenario):
 
 	def reset_world(self, world):
 		agent_list = []
-		color_choice = [np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([0,0,0]), np.array([255,0,255])]
+		color_choice = [np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([255,255,0]), np.array([255,0,255]), np.array([0,255,255])]
 		
 		for i in range(self.num_agents):
 			# rgb = np.random.uniform(-1,1,3)
@@ -107,9 +111,12 @@ class Scenario(BaseScenario):
 			elif i>=3*self.team_size and i<4*self.team_size:
 				world.agents[i].color = color_choice[3]
 				world.landmarks[i].color = color_choice[3]
-			else:
+			elif i>=4*self.team_size and i<5*self.team_size:
 				world.agents[i].color = color_choice[4]
 				world.landmarks[i].color = color_choice[4]
+			else:
+				world.agents[i].color = color_choice[5]
+				world.landmarks[i].color = color_choice[5]
 
 			if i%self.team_size == 0:
 				y = random.uniform(-1,1)
@@ -185,7 +192,7 @@ class Scenario(BaseScenario):
 			return False
 		delta_pos = agent1.state.p_pos - agent2.state.p_pos
 		dist = np.sqrt(np.sum(np.square(delta_pos)))
-		dist_min = agent1.size + agent2.size
+		dist_min = agent1.size*3
 		return True if dist < dist_min else False
 
 
@@ -203,16 +210,16 @@ class Scenario(BaseScenario):
 
 		# rew = -agent_dist_from_goal/10.0
 
-		collision_count = 0
+		collision = 0
 		for other_agent in world.agents:
 			if self.is_collision(agent, other_agent):
 				rew -= self.pen_collision
-				collision_count += 1
+				collision = 1
 
 		# on reaching goal we reward the agent
 		goal_reached = 0
 		if agent_dist_from_goal<self.threshold_dist:
-		# 	# rew += self.goal_reward
+			rew += self.goal_reward
 			# agent.goal_reached = True
 			goal_reached = 1
 		# else:
@@ -220,7 +227,7 @@ class Scenario(BaseScenario):
 		# 	rew -= self.pen_existence
 			
 
-		return rew, collision_count, goal_reached
+		return rew, collision, goal_reached
 
 
 	def observation(self, agent, world):

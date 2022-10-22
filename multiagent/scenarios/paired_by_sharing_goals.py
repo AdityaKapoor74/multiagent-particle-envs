@@ -9,8 +9,8 @@ class Scenario(BaseScenario):
 		world = World()
 		# set any world properties first
 		# world.dim_c = 2
-		self.num_agents = 30
-		self.num_landmarks = 30
+		self.num_agents = 32
+		self.num_landmarks = 32
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		world.collaborative = True
@@ -32,6 +32,7 @@ class Scenario(BaseScenario):
 		# make initial conditions
 		self.reset_world(world)
 		return world
+
 
 	def reset_world(self, world):
 
