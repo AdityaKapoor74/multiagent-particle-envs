@@ -14,7 +14,7 @@ class Scenario(BaseScenario):
 		self.num_agents = 24
 		self.num_landmarks = 24
 		self.threshold_dist = 1e-1
-		self.goal_reward = 0.1
+		self.goal_reward = 1.0
 		self.pen_existence = 1e-2
 		self.team_size = 8
 		self.pen_collision = 0.1
@@ -173,7 +173,7 @@ class Scenario(BaseScenario):
 			return False
 		delta_pos = agent1.state.p_pos - agent2.state.p_pos
 		dist = np.sqrt(np.sum(np.square(delta_pos)))
-		dist_min = agent1.size*3
+		dist_min = agent1.size*2
 		return True if dist < dist_min else False
 
 
