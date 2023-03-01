@@ -16,7 +16,7 @@ class Scenario(BaseScenario):
 		self.threshold_dist = 1e-1
 		self.goal_reward = 0.1
 		self.pen_existence = 1e-2
-		self.team_size = 4
+		self.team_size = 8
 		self.pen_collision = 0.1
 		self.agent_size = 0.05
 		self.landmark_size = 0.05
@@ -33,133 +33,114 @@ class Scenario(BaseScenario):
 			agent.silent = True
 			agent.size = self.agent_size
 			agent.prevDistance = None
-			if i<self.team_size:
-				agent.team_id = 1
-			elif i>= self.team_size and i<2*self.team_size:
-				agent.team_id = 2
-			elif i>= 2*self.team_size and i<3*self.team_size:
-				agent.team_id = 3
-			elif i>= 3*self.team_size and i<4*self.team_size:
-				agent.team_id = 4
-			elif i>= 4*self.team_size and i<5*self.team_size:
-				agent.team_id = 5
-			else:
-				agent.team_id = 6
+			for ts in range(self.num_agents//self.team_size):
+				if i >= ts*self.team_size and i < (ts+1)*self.team_size:
+					agent.team_id = ts
+					break
+			
 		# add landmarks
 		world.landmarks = [Landmark() for i in range(self.num_landmarks)]
 		for i, landmark in enumerate(world.landmarks):
 			landmark.name = 'landmark %d' % i
 			landmark.collide = False
 			landmark.movable = False
-			if i<self.team_size:
-				landmark.team_id = 1
-			elif i>= self.team_size and i<2*self.team_size:
-				landmark.team_id = 2
-			elif i>= 2*self.team_size and i<3*self.team_size:
-				landmark.team_id = 3
-			elif i>= 3*self.team_size and i<4*self.team_size:
-				landmark.team_id = 4
-			elif i>= 4*self.team_size and i<5*self.team_size:
-				landmark.team_id = 5
-			else:
-				landmark.team_id = 6
+			for ts in range(self.num_agents//self.team_size):
+				if i >= ts*self.team_size and i < (ts+1)*self.team_size:
+					landmark.team_id = i
+			
 		# make initial conditions
 		self.reset_world(world)
 		return world
 
 
-	def check_collision_before_spawning(self,agent,landmark,agent_list,landmark_list):
-		if agent is not None and agent_list is not None:
-			for other_agent in agent_list:
-				if agent.name == other_agent.name or agent.team_id != other_agent.team_id:
-					continue
-				delta_pos = agent.state.p_pos - other_agent.state.p_pos
-				dist = np.sqrt(np.sum(np.square(delta_pos)))
-				dist_min = self.agent_size*3
-				if dist < dist_min:
-					return True 
+	def check_collision_before_spawning(self, entity, entity_list):
+		for other_entity in entity_list:
+			if entity.name == other_entity.name:
+				continue
+			delta_pos = entity.state.p_pos - other_entity.state.p_pos
+			dist = np.sqrt(np.sum(np.square(delta_pos)))
+			dist_min = max(self.agent_size, self.landmark_size) * 4
+			if dist < dist_min:
+				return True 
 
-			return False
-
-		elif landmark is not None and landmark_list is not None:
-			for other_landmark in landmark_list:
-				if landmark.name == other_landmark.name or landmark.team_id != other_landmark.team_id:
-					continue
-				delta_pos = landmark.state.p_pos - other_landmark.state.p_pos
-				dist = np.sqrt(np.sum(np.square(delta_pos)))
-				dist_min = self.agent_size*3
-				if dist < dist_min:
-					return True 
-
-			return False
+		return False
 
 	def reset_world(self, world):
 		agent_list = []
+		landmark_list = []
 		color_choice = [np.array([255,0,0]), np.array([0,255,0]), np.array([0,0,255]), np.array([255,255,0]), np.array([255,0,255]), np.array([0,255,255])]
 		
 		for i in range(self.num_agents):
-			# rgb = np.random.uniform(-1,1,3)
-			if i < self.team_size:
-				world.agents[i].color = color_choice[0]
-				world.landmarks[i].color = color_choice[0]
-			elif i>=self.team_size and i<2*self.team_size:
-				world.agents[i].color = color_choice[1]
-				world.landmarks[i].color = color_choice[1]
-			elif i>=2*self.team_size and i<3*self.team_size:
-				world.agents[i].color = color_choice[2]
-				world.landmarks[i].color = color_choice[2]
-			elif i>=3*self.team_size and i<4*self.team_size:
-				world.agents[i].color = color_choice[3]
-				world.landmarks[i].color = color_choice[3]
-			elif i>=4*self.team_size and i<5*self.team_size:
-				world.agents[i].color = color_choice[4]
-				world.landmarks[i].color = color_choice[4]
-			else:
-				world.agents[i].color = color_choice[5]
-				world.landmarks[i].color = color_choice[5]
+			for t_id in range(self.num_agents//self.team_size):
+				if i >= t_id*self.team_size and i < (t_id+1)*self.team_size:
+					world.agents[i].color = color_choice[t_id]
+					world.landmarks[i].color = color_choice[t_id]
+					break
 
-			if i%self.team_size == 0:
-				y = random.uniform(-1,1)
-				x = -1
+
+			x = random.uniform(-1, 1)
+			y = random.uniform(-1, 1)
+			world.agents[i].state.p_pos = np.array([x,y])
+			while self.check_collision_before_spawning(world.agents[i], agent_list):
+				x = random.uniform(-1, 1)
+				y = random.uniform(-1, 1)
 				world.agents[i].state.p_pos = np.array([x,y])
-				world.landmarks[i].state.p_pos = np.array([-x,y])
-				while self.check_collision_before_spawning(world.agents[i],None, agent_list,None):
-					y = random.uniform(-1,1)
-					world.agents[i].state.p_pos = np.array([x,y])
-					world.landmarks[i].state.p_pos = np.array([-x,y])
-				world.agents[i].direction = "y"
-			elif i%self.team_size == 1:
-				x = random.uniform(-1,1)
-				y = -1
-				world.agents[i].state.p_pos = np.array([x,y])
-				world.landmarks[i].state.p_pos = np.array([x,-y])
-				while self.check_collision_before_spawning(world.agents[i],None, agent_list,None):
-					x = random.uniform(-1,1)
-					world.agents[i].state.p_pos = np.array([x,y])
-					world.landmarks[i].state.p_pos = np.array([x,-y])
-				world.agents[i].direction = "x"
-			elif i%self.team_size == 2:
-				y = random.uniform(-1,1)
-				x = 1
-				world.agents[i].state.p_pos = np.array([x,y])
-				world.landmarks[i].state.p_pos = np.array([-x,y])
-				while self.check_collision_before_spawning(world.agents[i],None, agent_list,None):
-					y = random.uniform(-1,1)
-					world.agents[i].state.p_pos = np.array([x,y])
-					world.landmarks[i].state.p_pos = np.array([-x,y])
-				world.agents[i].direction = "-y"
-			elif i%self.team_size == 3:
-				x = random.uniform(-1,1)
-				y = 1
-				world.agents[i].state.p_pos = np.array([x,y])
-				world.landmarks[i].state.p_pos = np.array([x,-y])
-				while self.check_collision_before_spawning(world.agents[i],None, agent_list,None):
-					x = random.uniform(-1,1)
-					world.agents[i].state.p_pos = np.array([x,y])
-					world.landmarks[i].state.p_pos = np.array([x,-y])
-				world.agents[i].direction = "-x"
 
 			agent_list.append(world.agents[i])
+
+			x = random.uniform(-1, 1)
+			y = random.uniform(-1, 1)
+			world.landmarks[i].state.p_pos = np.array([x,y])
+			while self.check_collision_before_spawning(world.landmarks[i], landmark_list):
+				x = random.uniform(-1, 1)
+				y = random.uniform(-1, 1)
+				world.landmarks[i].state.p_pos = np.array([x,y])
+
+			landmark_list.append(world.landmarks[i])
+
+			# SPAWN IN THE CORNER OF THE ROOM
+			# if i%self.team_size == 0:
+			# 	y = random.uniform(-1,1)
+			# 	x = -1
+			# 	world.agents[i].state.p_pos = np.array([x,y])
+			# 	world.landmarks[i].state.p_pos = np.array([-x,y])
+			# 	while self.check_collision_before_spawning(world.agents[i], None, agent_list, None):
+			# 		y = random.uniform(-1,1)
+			# 		world.agents[i].state.p_pos = np.array([x,y])
+			# 		world.landmarks[i].state.p_pos = np.array([-x,y])
+			# 	world.agents[i].direction = "y"
+			# elif i%self.team_size == 1:
+			# 	x = random.uniform(-1,1)
+			# 	y = -1
+			# 	world.agents[i].state.p_pos = np.array([x,y])
+			# 	world.landmarks[i].state.p_pos = np.array([x,-y])
+			# 	while self.check_collision_before_spawning(world.agents[i], None, agent_list, None):
+			# 		x = random.uniform(-1,1)
+			# 		world.agents[i].state.p_pos = np.array([x,y])
+			# 		world.landmarks[i].state.p_pos = np.array([x,-y])
+			# 	world.agents[i].direction = "x"
+			# elif i%self.team_size == 2:
+			# 	y = random.uniform(-1,1)
+			# 	x = 1
+			# 	world.agents[i].state.p_pos = np.array([x,y])
+			# 	world.landmarks[i].state.p_pos = np.array([-x,y])
+			# 	while self.check_collision_before_spawning(world.agents[i], None, agent_list, None):
+			# 		y = random.uniform(-1,1)
+			# 		world.agents[i].state.p_pos = np.array([x,y])
+			# 		world.landmarks[i].state.p_pos = np.array([-x,y])
+			# 	world.agents[i].direction = "-y"
+			# elif i%self.team_size == 3:
+			# 	x = random.uniform(-1,1)
+			# 	y = 1
+			# 	world.agents[i].state.p_pos = np.array([x,y])
+			# 	world.landmarks[i].state.p_pos = np.array([x,-y])
+			# 	while self.check_collision_before_spawning(world.agents[i], None, agent_list, None):
+			# 		x = random.uniform(-1,1)
+			# 		world.agents[i].state.p_pos = np.array([x,y])
+			# 		world.landmarks[i].state.p_pos = np.array([x,-y])
+			# 	world.agents[i].direction = "-x"
+
+			# agent_list.append(world.agents[i])
 
 			world.agents[i].state.p_vel = np.zeros(world.dim_p)
 			world.agents[i].state.c = np.zeros(world.dim_c)
