@@ -38,6 +38,7 @@ class Scenario(BaseScenario):
 			self.team_ids.append(encoding)
 
 		# full observation_shape
+		self.transformer_observation_shape = 2*3 + num_bits_required_agent_id + num_bits_required_team_id
 		self.observation_shape = 2*3 + num_bits_required_agent_id + num_bits_required_team_id + (self.num_agents-1)*(2*2+num_bits_required_team_id+num_bits_required_agent_id)
 
 		self.pen_collision = 0.1
