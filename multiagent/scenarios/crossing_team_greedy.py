@@ -247,9 +247,9 @@ class Scenario(BaseScenario):
 			agent.state.p_pos[1] = 1.0
 
 		curr_agent_index = world.agents.index(agent)
-		curr_agent_id = np.array(world.agents.index(agent))
+		curr_agent_id = np.array([world.agents.index(agent)])
 		# curr_agent_id = np.array(self.agent_ids[curr_agent_index])
-		curr_agent_team_id = np.array(agent.team_id)
+		curr_agent_team_id = np.array([agent.team_id])
 		# curr_agent_team_id = np.array(self.team_ids[agent.team_id])
 
 		current_agent_critic = [curr_agent_id, curr_agent_team_id, agent.state.p_pos, agent.state.p_vel, world.landmarks[curr_agent_index].state.p_pos]
