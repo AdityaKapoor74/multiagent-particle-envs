@@ -260,11 +260,11 @@ class Scenario(BaseScenario):
 				continue
 			# agent_id, relative pose, velocity wrt current_agent and team id of other agent 
 			# agent_id = np.array(self.agent_ids[world.agents.index(other_agent)])
-			agent_id = np.array(world.agents.index(other_agent))
+			agent_id = np.array([world.agents.index(other_agent)])
 			relative_pose = other_agent.state.p_pos-agent.state.p_pos
 			relative_vel = other_agent.state.p_vel-agent.state.p_vel
 			# agent_team_id = np.array(self.team_ids[other_agent.team_id])
-			agent_team_id = np.array(other_agent.team_id)
+			agent_team_id = np.array([other_agent.team_id])
 			current_agent_actor.extend([agent_id, agent_team_id, relative_pose, relative_vel])
 
 		return np.concatenate(current_agent_critic, axis=-1), np.concatenate(current_agent_actor, axis=-1)
