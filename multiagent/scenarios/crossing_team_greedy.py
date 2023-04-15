@@ -38,8 +38,10 @@ class Scenario(BaseScenario):
 			self.team_ids.append(encoding)
 
 		# full observation_shape
-		self.transformer_observation_shape = 2*3 + num_bits_required_agent_id + num_bits_required_team_id
-		self.observation_shape = 2*3 + num_bits_required_agent_id + num_bits_required_team_id + (self.num_agents-1)*(2*2+num_bits_required_team_id+num_bits_required_agent_id)
+		# self.transformer_observation_shape = 2*3 + num_bits_required_agent_id + num_bits_required_team_id
+		self.transformer_observation_shape = 2*3 + 1
+		# self.observation_shape = 2*3 + num_bits_required_agent_id + num_bits_required_team_id + (self.num_agents-1)*(2*2+num_bits_required_team_id+num_bits_required_agent_id)
+		self.observation_shape = 2*3 + 1 + (self.num_agents-1)*(2*2+1)
 
 		self.pen_collision = 0.1
 		self.agent_size = 0.05
@@ -245,8 +247,10 @@ class Scenario(BaseScenario):
 			agent.state.p_pos[1] = 1.0
 
 		curr_agent_index = world.agents.index(agent)
-		curr_agent_id = np.array(self.agent_ids[curr_agent_index])
-		curr_agent_team_id = np.array(self.team_ids[agent.team_id])
+		curr_agent_id = world.agents.index(agent)
+		# curr_agent_id = np.array(self.agent_ids[curr_agent_index])
+		curr_agent_team_id = agent.team_id
+		# curr_agent_team_id = np.array(self.team_ids[agent.team_id])
 
 		current_agent_critic = [curr_agent_id, curr_agent_team_id, agent.state.p_pos, agent.state.p_vel, world.landmarks[curr_agent_index].state.p_pos]
 		current_agent_actor = [curr_agent_id, curr_agent_team_id, agent.state.p_pos, agent.state.p_vel, world.landmarks[curr_agent_index].state.p_pos]
@@ -255,10 +259,12 @@ class Scenario(BaseScenario):
 			if other_agent.name == agent.name:
 				continue
 			# agent_id, relative pose, velocity wrt current_agent and team id of other agent 
-			agent_id = np.array(self.agent_ids[world.agents.index(other_agent)])
+			# agent_id = np.array(self.agent_ids[world.agents.index(other_agent)])
+			agent_id = world.agents.index(other_agent)
 			relative_pose = other_agent.state.p_pos-agent.state.p_pos
 			relative_vel = other_agent.state.p_vel-agent.state.p_vel
-			agent_team_id = np.array(self.team_ids[other_agent.team_id])
+			# agent_team_id = np.array(self.team_ids[other_agent.team_id])
+			agent_team_id = other_agent.team_id
 			current_agent_actor.extend([agent_id, agent_team_id, relative_pose, relative_vel])
 
 		return np.concatenate(current_agent_critic, axis=-1), np.concatenate(current_agent_actor, axis=-1)
