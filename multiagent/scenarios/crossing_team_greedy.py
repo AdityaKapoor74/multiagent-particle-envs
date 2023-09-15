@@ -29,23 +29,37 @@ class Scenario(BaseScenario):
 
 		self.num_teams = self.num_agents // self.team_size
 
+		# self.team_ids = []
+		# num_bits_required_team_id = self.num_teams.bit_length()
+		# for team_num in range(self.num_teams):
+		# 	binary_rep = bin(team_num).replace("0b", "")
+		# 	binary_rep += "0"*(num_bits_required_team_id-len(binary_rep))
+		# 	encoding = list(map(int, binary_rep))
+		# 	self.team_ids.append(encoding)
+
+		self.agent_ids = []
+		for i in range(self.num_agents):
+			agent_id = np.zeros(self.num_agents)
+			agent_id[i] = 1
+			self.agent_ids.append(agent_id)
+		self.agent_ids = np.array(self.agent_ids)
+
 		self.team_ids = []
-		num_bits_required_team_id = self.num_teams.bit_length()
-		for team_num in range(self.num_teams):
-			binary_rep = bin(team_num).replace("0b", "")
-			binary_rep += "0"*(num_bits_required_team_id-len(binary_rep))
-			encoding = list(map(int, binary_rep))
-			self.team_ids.append(encoding)
+		for i in range(self.num_teams):
+			team_id = np.zeros(self.num_teams)
+			team_id[i] = 1
+			self.team_ids.append(team_id)
+		self.team_ids = np.array(self.team_ids)
 
 		# full observation_shape
 		# self.transformer_observation_shape = 2*3 + num_bits_required_agent_id + num_bits_required_team_id
-		self.transformer_observation_shape = 2*3 + 1
+		self.critic_observation_shape = 2*3 + self.num_teams + self.num_agents
 		# self.observation_shape = 2*3 + num_bits_required_agent_id + num_bits_required_team_id + (self.num_agents-1)*(2*2+num_bits_required_team_id+num_bits_required_agent_id)
-		self.observation_shape = 2*3 + 1 + (self.num_agents-1)*(2*2+1)
+		self.actor_observation_shape = 2*3 + self.num_agents + self.num_teams + (self.num_agents-1)*(2*2+self.num_teams+self.num_agents)
 
 		self.pen_collision = 0.1
-		self.agent_size = 0.05
-		self.landmark_size = 0.05
+		self.agent_size = 0.1
+		self.landmark_size = 0.1
 		print("NUMBER OF AGENTS:",self.num_agents)
 		print("NUMBER OF LANDMARKS:",self.num_landmarks)
 		print("TEAM SIZE", self.team_size)
@@ -80,7 +94,7 @@ class Scenario(BaseScenario):
 
 	def check_collision_before_spawning(self, entity, entity_list):
 		for other_entity in entity_list:
-			if entity.name == other_entity.name:
+			if (entity.name == other_entity.name) or (entity.team_id != other_entity.team_id):
 				continue
 			delta_pos = entity.state.p_pos - other_entity.state.p_pos
 			dist = np.sqrt(np.sum(np.square(delta_pos)))
@@ -194,7 +208,7 @@ class Scenario(BaseScenario):
 
 
 	def is_collision(self, agent1, agent2):
-		if agent1.name == agent2.name or agent1.team_id != agent2.team_id:
+		if (agent1.name == agent2.name) or (agent1.team_id != agent2.team_id):
 			return False
 		delta_pos = agent1.state.p_pos - agent2.state.p_pos
 		dist = np.sqrt(np.sum(np.square(delta_pos)))
@@ -231,7 +245,6 @@ class Scenario(BaseScenario):
 		# else:
 		# 	agent.goal_reached = False
 		# 	rew -= self.pen_existence
-			
 
 		return rew, collision, goal_reached
 
@@ -246,26 +259,34 @@ class Scenario(BaseScenario):
 		if agent.state.p_pos[1]>1.0:
 			agent.state.p_pos[1] = 1.0
 
-		curr_agent_index = world.agents.index(agent)
-		curr_agent_id = np.array([world.agents.index(agent)])
-		# curr_agent_id = np.array(self.agent_ids[curr_agent_index])
-		curr_agent_team_id = np.array([agent.team_id])
-		# curr_agent_team_id = np.array(self.team_ids[agent.team_id])
+		map_x = map_y = 2.0
 
-		current_agent_critic = [agent.state.p_pos, agent.state.p_vel, curr_agent_team_id, world.landmarks[curr_agent_index].state.p_pos]
-		current_agent_actor = [agent.state.p_pos, agent.state.p_vel, curr_agent_team_id, world.landmarks[curr_agent_index].state.p_pos]
+		curr_agent_index = world.agents.index(agent)
+		# curr_agent_id = np.array([world.agents.index(agent)])
+		curr_agent_id = np.array(self.agent_ids[curr_agent_index])
+		# curr_agent_team_id = np.array([agent.team_id])
+		curr_agent_team_id = np.array(self.team_ids[agent.team_id])
+
+		agent_x, agent_y = agent.state.p_pos[0]/map_x, agent.state.p_pos[1]/map_y
+		# agent.state.p_vel[0], agent.state.p_vel[1] = agent.state.p_vel[0]/agent.max_speed, agent.state.p_vel[1]/max_speed
+		landmark_x, landmark_y = world.landmarks[curr_agent_index].state.p_pos[0]/map_x, world.landmarks[curr_agent_index].state.p_pos[1]/map_y
+		current_agent_critic = [curr_agent_id, curr_agent_team_id, np.array([agent_x,agent_y]), agent.state.p_vel, np.array([landmark_x, landmark_y])]
+		current_agent_actor = [curr_agent_id, curr_agent_team_id, np.array([agent_x,agent_y]), agent.state.p_vel, np.array([landmark_x, landmark_y])]
 
 		for other_agent in world.agents:
 			if other_agent.name == agent.name:
 				continue
-			# agent_id, relative pose, velocity wrt current_agent and team id of other agent 
-			# agent_id = np.array(self.agent_ids[world.agents.index(other_agent)])
+			# agent_id, team_id, relative pose, relative velocity wrt current_agent
+			
 			# agent_id = np.array([world.agents.index(other_agent)])
-			relative_pose = other_agent.state.p_pos-agent.state.p_pos
+			other_agent_x, other_agent_y = other_agent.state.p_pos[0]/map_x, other_agent.state.p_pos[1]/map_y
+			# other_agent.state.p_vel[0], other_agent.state.p_vel[1] = other_agent.state.p_vel[0]/agent.max_speed, other_agent.state.p_vel[1]/max_speed
+			relative_pose = np.array([other_agent_x, other_agent_y])-np.array([agent_x, agent_y])
 			relative_vel = other_agent.state.p_vel-agent.state.p_vel
-			# agent_team_id = np.array(self.team_ids[other_agent.team_id])
-			agent_team_id = np.array([other_agent.team_id])
-			current_agent_actor.extend([relative_pose, relative_vel, agent_team_id])
+			agent_id = np.array(self.agent_ids[world.agents.index(other_agent)])
+			agent_team_id = np.array(self.team_ids[other_agent.team_id])
+			# agent_team_id = np.array([other_agent.team_id])
+			current_agent_actor.extend([agent_id, agent_team_id, relative_pose, relative_vel])
 
 		return np.concatenate(current_agent_critic, axis=-1), np.concatenate(current_agent_actor, axis=-1)
 
