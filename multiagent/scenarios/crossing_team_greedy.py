@@ -228,7 +228,7 @@ class Scenario(BaseScenario):
 
 		# agent.prevDistance = agent_dist_from_goal
 
-		rew = -agent_dist_from_goal/100.0
+		rew = -agent_dist_from_goal
 
 		collision = 0
 		for other_agent in world.agents:
@@ -245,6 +245,9 @@ class Scenario(BaseScenario):
 		# else:
 		# 	agent.goal_reached = False
 		# 	rew -= self.pen_existence
+
+		# scaling reward
+		rew /= (2.0*self.num_agents)
 
 		return rew, collision, goal_reached
 
