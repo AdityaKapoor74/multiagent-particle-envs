@@ -221,14 +221,14 @@ class Scenario(BaseScenario):
 		
 		agent_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
 
-		# if agent.prevDistance is None:
-		# 	rew = 0
-		# else:
-		# 	rew = (agent.prevDistance - agent_dist_from_goal)
+		if agent.prevDistance is None:
+			rew = 0
+		else:
+			rew = (agent.prevDistance - agent_dist_from_goal)
 
-		# agent.prevDistance = agent_dist_from_goal
+		agent.prevDistance = agent_dist_from_goal
 
-		rew = -agent_dist_from_goal
+		# rew = -agent_dist_from_goal
 
 		collision = 0
 		for other_agent in world.agents:
@@ -247,7 +247,7 @@ class Scenario(BaseScenario):
 		# 	rew -= self.pen_existence
 
 		# scaling reward
-		rew /= (2.0*self.num_agents)
+		# rew /= (2.0*self.num_agents)
 
 		return rew, collision, goal_reached
 
