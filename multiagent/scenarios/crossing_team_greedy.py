@@ -22,7 +22,7 @@ class Scenario(BaseScenario):
 			self.agent_ids.append(encoding)
 
 		self.num_landmarks = 24
-		self.threshold_dist = 0.1
+		self.threshold_dist = 0.25
 		self.goal_reward = 0.0
 		self.pen_existence = 1e-2
 		self.team_size = 8
