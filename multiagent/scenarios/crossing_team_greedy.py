@@ -296,8 +296,10 @@ class Scenario(BaseScenario):
 
 	def isFinished(self, agent, world):
 		index = world.agents.index(agent)
-		dist = np.sqrt(np.sum(np.square(agent.state.p_pos - world.landmarks[index].state.p_pos)))
-		if dist>self.threshold_dist:
-			return False
+		for agent_ in world.agents:
+			agent_index = world.agents.index(agent_)
+			dist = np.sqrt(np.sum(np.square(agent_.state.p_pos - world.landmarks[agent_index].state.p_pos)))
+			if dist>self.threshold_dist:
+				return False
 		return True
 		
