@@ -270,9 +270,9 @@ class Scenario(BaseScenario):
 		# curr_agent_team_id = np.array([agent.team_id])
 		# curr_agent_team_id = np.array(self.team_ids[agent.team_id])
 
-		agent_x, agent_y = agent.state.p_pos[0]/map_x, agent.state.p_pos[1]/map_y
+		agent_x, agent_y = agent.state.p_pos[0], agent.state.p_pos[1]
 		# agent.state.p_vel[0], agent.state.p_vel[1] = agent.state.p_vel[0]/agent.max_speed, agent.state.p_vel[1]/max_speed
-		landmark_x, landmark_y = world.landmarks[curr_agent_index].state.p_pos[0]/map_x, world.landmarks[curr_agent_index].state.p_pos[1]/map_y
+		landmark_x, landmark_y = world.landmarks[curr_agent_index].state.p_pos[0], world.landmarks[curr_agent_index].state.p_pos[1]
 		# current_agent_critic = [curr_agent_id, curr_agent_team_id, np.array([agent_x,agent_y]), agent.state.p_vel, np.array([landmark_x, landmark_y])]
 		# current_agent_actor = [curr_agent_id, curr_agent_team_id, np.array([agent_x,agent_y]), agent.state.p_vel, np.array([landmark_x, landmark_y])]
 
@@ -285,7 +285,7 @@ class Scenario(BaseScenario):
 			# agent_id, team_id, relative pose, relative velocity wrt current_agent
 			
 			# agent_id = np.array([world.agents.index(other_agent)])
-			other_agent_x, other_agent_y = other_agent.state.p_pos[0]/map_x, other_agent.state.p_pos[1]/map_y
+			other_agent_x, other_agent_y = other_agent.state.p_pos[0], other_agent.state.p_pos[1]
 			# other_agent.state.p_vel[0], other_agent.state.p_vel[1] = other_agent.state.p_vel[0]/agent.max_speed, other_agent.state.p_vel[1]/max_speed
 			relative_pose = np.array([other_agent_x, other_agent_y])-np.array([agent_x, agent_y])
 			relative_vel = other_agent.state.p_vel-agent.state.p_vel
