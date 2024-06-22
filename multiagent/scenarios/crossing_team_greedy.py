@@ -13,13 +13,13 @@ class Scenario(BaseScenario):
 		# world.dim_c = 2
 		self.num_agents = 24
 
-		self.agent_ids = []
-		num_bits_required_agent_id = self.num_agents.bit_length()
-		for agent_num in range(self.num_agents):
-			binary_rep = bin(agent_num).replace("0b", "")
-			binary_rep += "0"*(num_bits_required_agent_id-len(binary_rep))
-			encoding = list(map(int, binary_rep))
-			self.agent_ids.append(encoding)
+		# self.agent_ids = []
+		# num_bits_required_agent_id = self.num_agents.bit_length()
+		# for agent_num in range(self.num_agents):
+		# 	binary_rep = bin(agent_num).replace("0b", "")
+		# 	binary_rep += "0"*(num_bits_required_agent_id-len(binary_rep))
+		# 	encoding = list(map(int, binary_rep))
+		# 	self.agent_ids.append(encoding)
 
 		self.num_landmarks = 24
 		self.threshold_dist = 0.1
@@ -86,17 +86,17 @@ class Scenario(BaseScenario):
 			landmark.movable = False
 			for ts in range(self.num_agents//self.team_size):
 				if i >= ts*self.team_size and i < (ts+1)*self.team_size:
-					landmark.team_id = i
+					landmark.team_id = ts
 			
 		# make initial conditions
 		self.reset_world(world)
 		return world
 
-	def check_collision_before_spawning(self, entity, entity_list):
+	def check_collision_before_spawning(self, entity_proposed_pose, entity, entity_list):
 		for other_entity in entity_list:
 			if (entity.name == other_entity.name) or (entity.team_id != other_entity.team_id):
 				continue
-			delta_pos = entity.state.p_pos - other_entity.state.p_pos
+			delta_pos = entity_proposed_pose - other_entity.state.p_pos
 			dist = np.sqrt(np.sum(np.square(delta_pos)))
 			dist_min = max(self.agent_size, self.landmark_size) * 4
 			if dist < dist_min:
@@ -116,25 +116,24 @@ class Scenario(BaseScenario):
 					world.landmarks[i].color = color_choice[t_id]
 					break
 
-
-			x = random.uniform(-1, 1)
-			y = random.uniform(-1, 1)
+			while True:
+				x = random.uniform(-0.95, 0.95)
+				y = random.uniform(-0.95, 0.95)
+				flag = self.check_collision_before_spawning(np.array([x,y]), world.agents[i], agent_list)
+				if not flag:
+					break
+			
 			world.agents[i].state.p_pos = np.array([x,y])
-			while self.check_collision_before_spawning(world.agents[i], agent_list):
-				x = random.uniform(-1, 1)
-				y = random.uniform(-1, 1)
-				world.agents[i].state.p_pos = np.array([x,y])
-
 			agent_list.append(world.agents[i])
 
-			x = random.uniform(-1, 1)
-			y = random.uniform(-1, 1)
+			while True:
+				x = random.uniform(-0.95, 0.95)
+				y = random.uniform(-0.95, 0.95)
+				flag = self.check_collision_before_spawning(np.array([x,y]), world.landmarks[i], landmark_list)
+				if not flag:
+					break
+			
 			world.landmarks[i].state.p_pos = np.array([x,y])
-			while self.check_collision_before_spawning(world.landmarks[i], landmark_list):
-				x = random.uniform(-1, 1)
-				y = random.uniform(-1, 1)
-				world.landmarks[i].state.p_pos = np.array([x,y])
-
 			landmark_list.append(world.landmarks[i])
 
 			# SPAWN IN THE CORNER OF THE ROOM
@@ -253,16 +252,16 @@ class Scenario(BaseScenario):
 
 
 	def observation(self, agent, world):
-		if agent.state.p_pos[0]>1.0:
-			agent.state.p_pos[0] = 1.0
-		if agent.state.p_pos[0]<-1.0:
-			agent.state.p_pos[0] = -1.0
-		if agent.state.p_pos[1]<-1.0:
-			agent.state.p_pos[1] = -1.0
-		if agent.state.p_pos[1]>1.0:
-			agent.state.p_pos[1] = 1.0
+		if agent.state.p_pos[0]>0.95:
+			agent.state.p_pos[0] = 0.95
+		if agent.state.p_pos[0]<-0.95:
+			agent.state.p_pos[0] = -0.95
+		if agent.state.p_pos[1]<-0.95:
+			agent.state.p_pos[1] = -0.95
+		if agent.state.p_pos[1]>0.95:
+			agent.state.p_pos[1] = 0.95
 
-		map_x = map_y = 2.0
+		# map_x = map_y = 2.0
 
 		curr_agent_index = world.agents.index(agent)
 		# curr_agent_id = np.array([world.agents.index(agent)])
@@ -276,8 +275,8 @@ class Scenario(BaseScenario):
 		# current_agent_critic = [curr_agent_id, curr_agent_team_id, np.array([agent_x,agent_y]), agent.state.p_vel, np.array([landmark_x, landmark_y])]
 		# current_agent_actor = [curr_agent_id, curr_agent_team_id, np.array([agent_x,agent_y]), agent.state.p_vel, np.array([landmark_x, landmark_y])]
 
-		current_agent_critic = [np.array([agent_x,agent_y]), agent.state.p_vel, np.array([landmark_x, landmark_y])]
-		current_agent_actor = [np.array([agent_x,agent_y]), agent.state.p_vel, np.array([landmark_x, landmark_y])]
+		current_agent_critic = [np.array([agent_x, agent_y]), agent.state.p_vel, np.array([landmark_x, landmark_y])]
+		current_agent_actor = [np.array([agent_x, agent_y]), agent.state.p_vel, np.array([landmark_x, landmark_y])]
 
 		for other_agent in world.agents:
 			if other_agent.name == agent.name:
