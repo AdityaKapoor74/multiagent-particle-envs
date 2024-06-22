@@ -57,7 +57,7 @@ class Scenario(BaseScenario):
 		# self.observation_shape = 2*3 + num_bits_required_agent_id + num_bits_required_team_id + (self.num_agents-1)*(2*2+num_bits_required_team_id+num_bits_required_agent_id)
 		self.actor_observation_shape = 2*3 + (self.num_agents-1)*2*2 # 2*3 + self.num_agents + self.num_teams + (self.num_agents-1)*(2*2+self.num_teams+self.num_agents)
 
-		self.pen_collision = 0.1
+		self.pen_collision = -1
 		self.agent_size = 0.1
 		self.landmark_size = 0.1
 		print("NUMBER OF AGENTS:",self.num_agents)
@@ -220,19 +220,19 @@ class Scenario(BaseScenario):
 		
 		agent_dist_from_goal = np.sqrt(np.sum(np.square(world.agents[my_index].state.p_pos - world.landmarks[my_index].state.p_pos)))
 
-		if agent.prevDistance is None:
-			rew = 0
-		else:
-			rew = (agent.prevDistance - agent_dist_from_goal)
+		# if agent.prevDistance is None:
+		# 	rew = 0
+		# else:
+		# 	rew = (agent.prevDistance - agent_dist_from_goal)
 
-		agent.prevDistance = agent_dist_from_goal
+		# agent.prevDistance = agent_dist_from_goal
 
-		# rew = -agent_dist_from_goal
+		rew = -agent_dist_from_goal
 
 		collision = 0
 		for other_agent in world.agents:
 			if self.is_collision(agent, other_agent):
-				rew -= self.pen_collision
+				rew += self.pen_collision
 				collision = 1
 
 		# on reaching goal we reward the agent
